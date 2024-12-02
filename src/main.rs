@@ -30,6 +30,7 @@ fn day01(input: &String) {
     let input: Vec<usize> = input.split_whitespace().map(|s| s.parse::<usize>().expect("Input should be unsigned integers")).collect();
     
     // two seperate vecs for left column and right column
+    // could also use transpose, but that's not in std
     let mut a = Vec::<usize>::new();
     let mut b = Vec::<usize>::new();
 
@@ -82,5 +83,53 @@ fn day01(input: &String) {
 }
 
 fn day02(input: &String) {
+    // split input by whitespace, and convert to unsigned integers    
+    let reports = input.split('\n').collect::<Vec::<&str>>();
+    let reports: Vec<Vec<usize>> = reports.into_iter().map(|r| r.split_whitespace().collect::<Vec::<&str>>().into_iter().map(|s| s.parse::<usize>().expect("Input should be unsigned integers")).collect()).collect();
 
+    println!("{reports:?}");
+
+    // how many reports are safe    
+    let mut safe = 0;
+    for r in reports {
+        if is_safe(r) {
+            safe += 1;
+        }
+    }
+
+    println!("safe: {safe}");
+}
+
+fn is_safe(r: Vec<usize>) -> bool {    
+    let up = if r[0] < r[1] {
+        true
+    } else {
+        false
+    };
+    for i in 0..r.len()-1 {
+        if r[i] == r[i+1] {
+            return false;
+        }
+        if up {
+            if r[i] > r[i+1] {
+                return false;
+            }
+            let d = r[i+1] - r[i];
+            println!("up d: {d}");
+            if d > 3 {
+                return false;
+            }
+        } else {
+            if r[i] < r[i+1] {
+                return false;
+            }
+            let d = r[i] - r[i+1];
+            println!("down d: {d}");
+            if d > 3 {
+                return false;
+            }
+        }
+    }
+
+    true
 }
