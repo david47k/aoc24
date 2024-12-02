@@ -87,49 +87,79 @@ fn day02(input: &String) {
     let reports = input.split('\n').collect::<Vec::<&str>>();
     let reports: Vec<Vec<usize>> = reports.into_iter().map(|r| r.split_whitespace().collect::<Vec::<&str>>().into_iter().map(|s| s.parse::<usize>().expect("Input should be unsigned integers")).collect()).collect();
 
-    println!("{reports:?}");
+    // determine if report is safe according to rules
+    fn is_safe(r: &Vec<usize>) -> bool {    
+        let up = if r[0] < r[1] {
+            true
+        } else {
+            false
+        };
+        for i in 0..r.len()-1 {
+            if r[i] == r[i+1] {
+                return false;
+            }
+            if up {
+                if r[i] > r[i+1] {
+                    return false;
+                }
+                let d = r[i+1] - r[i];
+                if d > 3 {
+                    return false;
+                }
+            } else {
+                if r[i] < r[i+1] {
+                    return false;
+                }
+                let d = r[i] - r[i+1];
+                if d > 3 {
+                    return false;
+                }
+            }
+        }
+    
+        true
+    }
 
     // how many reports are safe    
     let mut safe = 0;
-    for r in reports {
-        if is_safe(r) {
+    for r in reports.iter() {
+        if is_safe(&r) {
             safe += 1;
         }
     }
 
     println!("safe: {safe}");
-}
 
-fn is_safe(r: Vec<usize>) -> bool {    
-    let up = if r[0] < r[1] {
-        true
-    } else {
-        false
-    };
-    for i in 0..r.len()-1 {
-        if r[i] == r[i+1] {
-            return false;
+    // part two
+
+    fn create_variants(r: &Vec<usize>) -> Vec<Vec<usize>> {
+        let mut vs = vec![];
+        for i in 0..r.len() {
+            let mut v = r.clone();
+            v.remove(i);
+            vs.push(v);
         }
-        if up {
-            if r[i] > r[i+1] {
-                return false;
-            }
-            let d = r[i+1] - r[i];
-            println!("up d: {d}");
-            if d > 3 {
-                return false;
-            }
-        } else {
-            if r[i] < r[i+1] {
-                return false;
-            }
-            let d = r[i] - r[i+1];
-            println!("down d: {d}");
-            if d > 3 {
-                return false;
+        vs
+    }
+
+    let mut safe2 = 0;
+    for r in reports.iter() {
+        if is_safe(&r) {
+            safe2 += 1;
+            continue;
+        }
+        // create variants of the report
+        let vs = create_variants(&r);
+        for v in vs.iter() {
+            if is_safe(&v) {
+                safe2 += 1;
+                break;
             }
         }
     }
 
-    true
+    println!("part two: {safe2}");
 }
+
+
+
