@@ -23,6 +23,7 @@ fn main() {
         1  => day01(&input),
         2  => day02(&input),
         3  => day03(&input),
+        4  => day04(&input),
         _  => println!("Unknown day!"),
     };
 }
@@ -162,14 +163,14 @@ fn day03(input: &String) {
     // this looks like a regex challenge first!
     // we'll extract the text group first (easier for debugging)
     // later we might extract the number groups
-    let re = regex::Regex::new(r"mul\(\d{1,3},\d{1,3}\)").expect("Should be a valid regex");
+    let re = regex::Regex::new(r"mul\(\d{1,3},\d{1,3}\)").expect("should be a valid regex");
     let muls: Vec<&str> = re.find_iter(input).map(|m| m.as_str()).collect();
 
     // extract numbers, multiply, sum results
     let mut sum: usize = 0;
     muls.iter().for_each(|m| {
         // manually finding the numbers
-        let i: usize = m.find(',').expect("Should be a comma in the map command");        
+        let i: usize = m.find(',').expect("should be a comma in the map command");        
         let a: usize = m[4..i].parse().expect("should be a number");
         let j: usize = m.find(')').expect("should be a close bracket");
         let b: usize = m[i+1..j].parse().expect("should be a number");
@@ -181,7 +182,7 @@ fn day03(input: &String) {
     // part two
 
     // this time we'll extract the do() and don't() instructions as well
-    let re = regex::Regex::new(r"(mul\(\d{1,3},\d{1,3}\))|(do\(\))|(don't\(\))").expect("Should be a valid regex");
+    let re = regex::Regex::new(r"(mul\(\d{1,3},\d{1,3}\))|(do\(\))|(don't\(\))").expect("should be a valid regex");
     let muls: Vec<&str> = re.find_iter(input).map(|m| m.as_str()).collect();
 
     // extract numbers, multiply, sum results
@@ -189,7 +190,7 @@ fn day03(input: &String) {
     let mut enabled = true;
     let re2 = regex::Regex::new(r"(\d{1,3}),(\d{1,3})").expect("valid regex");
     muls.iter().for_each(|m| {
-        //match the 4th character -- will be ', ), or (
+        //match the 4th character -- will be ', ), or (, for don't(), do() and mul() respectively
         match m.chars().nth(3).expect("should be chars-able") {
             '\'' => enabled = false,
             ')' => enabled = true,
@@ -210,3 +211,48 @@ fn day03(input: &String) {
     println!("part two sum: {sum2}");
 }
 
+fn day04(input: &String) {
+    // word search! for XMAS
+    // get rows
+    let rows = input.lines().collect::<Vec<&str>>();
+    let data: Vec<Vec<char>> = rows.iter().map(|r| r.chars().collect::<Vec::<char>>()).collect();
+    let h = rows.len();
+    let w = rows[0].len();
+    println!("w: {w} h: {h}");
+    let mut c = 0;
+
+    const XMAS: [char; 4] = [ 'X', 'M', 'A', 'S' ];
+    const SAMX: [char; 4] = [ 'S', 'A', 'M', 'X' ];
+
+    // horizontal search
+    for y in 0..h {
+        for x in 0..w {
+            // horizontal search
+            if x < w-3 {
+                let window = &data[y][x..x+4];
+                c += (window == XMAS) as usize;
+                c += (window == SAMX) as usize;
+            }
+            // vertical search
+            if y < h-3 {
+                let window = [ data[y][x], data[y+1][x], data[y+2][x], data[y+3][x] ];
+                c += (window == XMAS) as usize;
+                c += (window == SAMX) as usize;
+            }
+            // diagonal TL--BR search
+            if x < w-3 && y < h-3 {
+                let window = [ data[y][x], data[y+1][x+1], data[y+2][x+2], data[y+3][x+3] ];
+                c += (window == XMAS) as usize;
+                c += (window == SAMX) as usize;
+            }
+            // diagonal TR--BL search
+            if x >= 3 && y < h-3 {
+                let window = [ data[y][x], data[y+1][x-1], data[y+2][x-2], data[y+3][x-3] ];
+                c += (window == XMAS) as usize;
+                c += (window == SAMX) as usize;
+            }
+        }
+    }
+
+    println!("count: {c}");
+}
