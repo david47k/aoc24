@@ -121,12 +121,7 @@ fn day02(input: &String) {
     }
 
     // how many reports are safe    
-    let mut safe = 0;
-    for r in reports.iter() {
-        if is_safe(&r) {
-            safe += 1;
-        }
-    }
+    let safe = reports.iter().filter(|&r| is_safe(r)).count();
 
     println!("safe: {safe}");
 
