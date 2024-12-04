@@ -257,9 +257,9 @@ fn day04(input: &String) {
     println!("part one count: {c}");
 
     // part two: X-MAS
-    // a..       ..a
-    // .A.  or   .A.
-    // ..b       b..
+    // a..         ..a
+    // .A.   and   .A.
+    // ..b         b..
     // the pattern is valid for specific values of a and b, either MS or SM
     
     const MS: [char; 2] = ['M','S'];
