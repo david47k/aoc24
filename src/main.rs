@@ -213,9 +213,10 @@ fn day03(input: &String) {
 
 fn day04(input: &String) {
     // word search! for XMAS
-    // get rows
+    // get text as a grid of chars
     let rows = input.lines().collect::<Vec<&str>>();
     let data: Vec<Vec<char>> = rows.iter().map(|r| r.chars().collect::<Vec::<char>>()).collect();
+
     let h = rows.len();
     let w = rows[0].len();
     println!("w: {w} h: {h}");
@@ -224,7 +225,6 @@ fn day04(input: &String) {
     const XMAS: [char; 4] = [ 'X', 'M', 'A', 'S' ];
     const SAMX: [char; 4] = [ 'S', 'A', 'M', 'X' ];
 
-    // horizontal search
     for y in 0..h {
         for x in 0..w {
             // horizontal search
@@ -254,5 +254,31 @@ fn day04(input: &String) {
         }
     }
 
-    println!("count: {c}");
+    println!("part one count: {c}");
+
+    // part two: X-MAS
+    // a..       ..a
+    // .A.  or   .A.
+    // ..b       b..
+    // the pattern is valid for specific values of a and b, either MS or SM
+    
+    const MS: [char; 2] = ['M','S'];
+    const SM: [char; 2] = ['S','M'];
+
+    let mut c2 = 0;
+
+    for y in 1..h-1 {
+        for x in 1..w-1 {
+            if data[y][x] == 'A' {
+                let mut pass_count = 0;
+                let window = [ data[y-1][x-1], data[y+1][x+1] ];            
+                pass_count += (window == MS || window == SM) as usize;      // test TL-BR
+                let window = [ data[y-1][x+1], data[y+1][x-1] ];            // test TR-BL
+                pass_count += (window == MS || window == SM) as usize;
+                c2 += (pass_count == 2) as usize;       // increment if this X passes both tests
+            }
+        }
+    }
+
+    println!("part two count: {c2}");
 }
