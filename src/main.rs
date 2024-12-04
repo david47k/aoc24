@@ -24,6 +24,7 @@ fn main() {
         2  => day02(&input),
         3  => day03(&input),
         4  => day04(&input),
+        5  => day05(&input),
         _  => println!("Unknown day!"),
     };
 }
@@ -281,4 +282,8 @@ fn day04(input: &String) {
     }
 
     println!("part two count: {c2}");
+}
+
+fn day05(input: &String) {
+
 }
