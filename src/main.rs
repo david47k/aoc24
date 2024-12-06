@@ -25,6 +25,7 @@ fn main() {
         3  => day03(&input),
         4  => day04(&input),
         5  => day05(&input),
+        6  => day06(&input),
         _  => println!("Unknown day!"),
     };
 }
@@ -354,4 +355,8 @@ fn day05(input: &String) {
     }
 
     println!("part two sum: {sum2}");
+}
+
+fn day06(input: &String) {
+    
 }
