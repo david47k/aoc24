@@ -26,6 +26,7 @@ fn main() {
         4  => day04(&input),
         5  => day05(&input),
         6  => day06(&input),
+        7  => day07(&input),
         _  => println!("Unknown day!"),
     };
 }
@@ -357,10 +358,6 @@ fn day05(input: &String) {
     println!("part two sum: {sum2}");
 }
 
-const UP: u8 = 1u8;
-const RIGHT: u8 = 2u8;
-const DOWN: u8 = 4u8;
-const LEFT: u8 = 8u8;
 
 fn day06(input: &String) {
     // where does the guard go?
@@ -372,9 +369,15 @@ fn day06(input: &String) {
     let w = rows[0].len();
     println!("w: {w} h: {h}");
 
+    // define directions using a bitmask
+    const UP: u8 = 1u8;
+    const RIGHT: u8 = 2u8;
+    const DOWN: u8 = 4u8;
+    const LEFT: u8 = 8u8;    
+
     // where is the guard to start?
-    let mut gx: isize = -1;
-    let mut gy: isize = -1;
+    let mut gx = -1;
+    let mut gy = -1;
     let mut gd = 0u8;     // guard direction - 0 up, 1 right, 2 down, 3 left
     for y in 0..h {
         for x in 0..w {
@@ -484,7 +487,7 @@ fn day06(input: &String) {
     // remove guard start position
     let sites: Vec<&(usize, usize)> = sites.iter().filter(|&&d| d != gs).collect();
 
-    let mut looped_count = 0;
+    let mut looped_count = 0;       // number of times the obstruction leads to the guard walking a loop
 
     // test each (x,y) on a input copy, with the obstruction placed, and check for a guard walk loop
     for (x,y) in sites.iter() {
@@ -541,4 +544,8 @@ fn day06(input: &String) {
         
     }
     println!("part two looped_count: {looped_count}");
+}
+
+fn day07(input: &String) {
+
 }
