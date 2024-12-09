@@ -1,2 +1,6 @@
 /target
 input*
+/.idea/aoc24.iml
+/.idea/modules.xml
+/.idea/vcs.xml
+/.idea/.gitignore
