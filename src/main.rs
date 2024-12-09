@@ -1,3 +1,7 @@
+pub mod grid;
+
+pub mod day08;
+
 // Advent of Code 2024
 // By david47k at d47 dot co
 use regex;
@@ -27,6 +31,7 @@ fn main() {
         5  => day05(&input),
         6  => day06(&input),
         7  => day07(&input),
+        8  => day08::day08(&input),
         _  => println!("Unknown day!"),
     };
 }
@@ -90,8 +95,8 @@ fn day01(input: &String) {
 
 fn day02(input: &String) {
     // split input by whitespace, and convert to unsigned integers    
-    let reports = input.split('\n').collect::<Vec::<&str>>();
-    let reports: Vec<Vec<usize>> = reports.into_iter().map(|r| r.split_whitespace().collect::<Vec::<&str>>().into_iter().map(|s| s.parse::<usize>().expect("Input should be unsigned integers")).collect()).collect();
+    let reports = input.split('\n').collect::<Vec<&str>>();
+    let reports: Vec<Vec<usize>> = reports.into_iter().map(|r| r.split_whitespace().collect::<Vec<&str>>().into_iter().map(|s| s.parse::<usize>().expect("Input should be unsigned integers")).collect()).collect();
 
     // determine if report is safe according to rules
     fn is_safe(r: &Vec<usize>) -> bool {    
@@ -218,7 +223,7 @@ fn day04(input: &String) {
     // word search! for XMAS
     // get text as a grid of chars
     let rows = input.lines().collect::<Vec<&str>>();
-    let data: Vec<Vec<char>> = rows.iter().map(|r| r.chars().collect::<Vec::<char>>()).collect();
+    let data: Vec<Vec<char>> = rows.iter().map(|r| r.chars().collect::<Vec<char>>()).collect();
 
     let h = rows.len();
     let w = rows[0].len();
@@ -305,7 +310,7 @@ fn day05(input: &String) {
 
     // rules: a|b means a must be before b
 
-    fn invalid_pair(a: usize, b: usize, rules: &Vec::<(usize,usize)>) -> bool {
+    fn invalid_pair(a: usize, b: usize, rules: &Vec<(usize,usize)>) -> bool {
         // check if this pair is valid according to the rules
         // find matching rules
         let rf: Vec<&(usize,usize)> = rules.iter().filter(|r| (r.0 == a && r.1 == b) || (r.0 == b && r.1 == a)).collect();
@@ -363,7 +368,7 @@ fn day06(input: &String) {
     // where does the guard go?
     // read the input into a vec<vec<char>>
     let rows = input.lines().collect::<Vec<&str>>();
-    let mut data: Vec<Vec<char>> = rows.iter().map(|r| r.chars().collect::<Vec::<char>>()).collect();
+    let mut data: Vec<Vec<char>> = rows.iter().map(|r| r.chars().collect::<Vec<char>>()).collect();
 
     let h = rows.len();
     let w = rows[0].len();
@@ -434,7 +439,7 @@ fn day06(input: &String) {
         if x < 0 || x >= w as isize || y < 0 || y >= h as isize {
             return '!';
         }
-        return data[y as usize][x as usize];
+        data[y as usize][x as usize]
     }
 
     // main walking loop
@@ -462,7 +467,7 @@ fn day06(input: &String) {
     }
 
     // how many positions the guard visited
-    let v = visited.iter().flatten().collect::<Vec::<&u8>>().iter().filter(|v| ***v != 0).count();
+    let v = visited.iter().flatten().collect::<Vec<&u8>>().iter().filter(|v| ***v != 0).count();
     println!("part one: {v}");
 
     // part two
@@ -478,7 +483,7 @@ fn day06(input: &String) {
             } else {
                 return None;
             }
-        }).collect::<Vec::<Option::<(usize,usize)>>>()
+        }).collect::<Vec<Option<(usize,usize)>>>()
     }).flatten().filter(|d| d.is_some()).map(|d| d.unwrap()).collect();
 
     println!("sites: {sites:?}");
@@ -659,3 +664,5 @@ fn day07(input: &String) {
     let valid_sum: usize = valid_data.iter().map(|r| r[0]).sum();
     println!("part two sum: {valid_sum}");
 }
+
+
