@@ -25,6 +25,9 @@ impl XY {
             y: -self.y,
         }
     }
+    pub fn is_valid(&self, grid: &Grid) -> bool {
+        self.x >= 0 && self.x < grid.w && self.y >= 0 && self.y < grid.h
+    }
     pub fn to_string(&self) -> String {
         format!("({},{})", self.x, self.y)
     }
@@ -53,20 +56,17 @@ impl Grid {
             data,
         }
     }
-    pub fn on_grid(&self, xy: &XY) -> bool {
-        if xy.x < 0 || xy.x >= self.w || xy.y < 0 || xy.y >= self.h {
-            return false;
-        }
-        true
+    pub fn has_xy(&self, xy: &XY) -> bool {
+        xy.x >= 0 && xy.x < self.w && xy.y >= 0 && xy.y < self.h
     }
     pub fn get(&self, xy: &XY) -> Option<u8> {
-        if self.on_grid(xy) {
+        if xy.is_valid(&self) {
             return Some(self.data[xy.y as usize][xy.x as usize]);
         }
         None
     }
     pub fn put(&mut self, xy: &XY, value: u8) -> bool {
-        if self.on_grid(xy) {
+        if xy.is_valid(&self) {
             self.data[xy.y as usize][xy.x as usize] = value;
             return true;
         }
@@ -83,7 +83,7 @@ impl Grid {
         }
         results
     }
-    pub fn find_from(&self, f: fn(u8) -> bool) -> Vec<XY> {
+    pub fn find_fn(&self, f: fn(u8) -> bool) -> Vec<XY> {
         let mut results: Vec<XY> = Vec::new();
         for y in 0..self.h {
             for x in 0..self.w {
@@ -95,3 +95,5 @@ impl Grid {
         results
     }
 }
+
+

@@ -1,6 +1,5 @@
-use itertools::Itertools;
-
 use crate::grid::{*};
+use itertools::Itertools;
 
 pub fn day08(input: &String) {
 
@@ -41,7 +40,7 @@ pub fn day08(input: &String) {
     // count how many unique ones that are on the map
     antinodes.sort();
     antinodes.dedup();
-    let antinodes = antinodes.iter().filter(|n| grid.on_grid(n)).collect_vec();
+    let antinodes = antinodes.iter().filter(|n| n.is_valid(&grid)).collect_vec();
     println!("part one: unique antinodes: {}", antinodes.len());
 
     // part two
@@ -68,14 +67,14 @@ pub fn day08(input: &String) {
 
                 // first direction
                 let mut an0 = pair[0].sub(&d);
-                while grid.on_grid(&an0) {
+                while grid.has_xy(&an0) {
                     antinodes.push(an0);
                     an0 = an0.sub(&d);
                 }
 
                 // second direction
                 let mut an1 = pair[1].add(&d);
-                while grid.on_grid(&an1) {
+                while grid.has_xy(&an1) {
                     antinodes.push(an1);
                     an1 = an1.add(&d);
                 }
