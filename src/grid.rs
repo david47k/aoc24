@@ -65,6 +65,9 @@ impl Grid {
         }
         None
     }
+    pub fn get_unchecked(&self, xy: &XY) -> u8 {
+        self.data[xy.y as usize][xy.x as usize]
+    }
     pub fn put(&mut self, xy: &XY, value: u8) -> bool {
         if xy.is_valid(&self) {
             self.data[xy.y as usize][xy.x as usize] = value;

@@ -4,18 +4,8 @@ use std::iter;
 
 #[derive(Clone,Copy)]
 struct Segment {
-    id: Option<usize>,  // None for empty space
+    id: Option<usize>,  // None for empty space, Some<file_id> for a file
     size: usize,        // Size of this segment in blocks
-}
-
-impl Segment {
-    pub fn to_string(&self) -> String {
-        return if self.id.is_some() {
-            format!("{0:04};{1:02}", self.id.unwrap(), self.size)
-        } else {
-            return format!("....;{0:02}", self.size)
-        };
-    }
 }
 
 pub fn day09(input: &String) {
@@ -27,22 +17,23 @@ pub fn day09(input: &String) {
     for i in 0..input.len() {
         let n = input[i];
         let id = i / 2;
+        let mut new_blocks: Vec<Option<usize>>;
         if i % 2 == 0 {
-            let mut file_blocks: Vec<Option<usize>> = iter::repeat(Some(id)).take(n).collect_vec();
-            blocks.append( &mut file_blocks);
+            new_blocks = iter::repeat(Some(id)).take(n).collect_vec();
         } else {
-            let mut free_blocks: Vec<Option<usize>> = iter::repeat(None).take(n).collect_vec();
-            blocks.append(&mut free_blocks);
+            new_blocks = iter::repeat(None).take(n).collect_vec();
         }
+        blocks.append(&mut new_blocks);
     }
 
-    // 00...111...2...333.44.5555.6666.777.888899
-    println!("disk of {0} blocks", blocks.len());
-    let mut free_idx = blocks.iter().position(|&b| b==None);
+    println!("disk size (blocks): {0}", blocks.len());
+
+    // find the last block with a file, and the first block that is empty
     let mut last_idx = blocks.len() - 1;
-    while free_idx.is_some() && free_idx.unwrap() < last_idx {
-        // move block at last_idx to free_idx
-        blocks[free_idx.unwrap()] = blocks[last_idx];
+    let mut free_idx = blocks.iter().take(last_idx - 1).position(|&b| b==None);
+    while let Some(free_idx_u) = free_idx {
+        // move file block to empty block
+        blocks[free_idx_u] = blocks[last_idx];
         blocks[last_idx] = None;
 
         // find next block to move
@@ -52,25 +43,24 @@ pub fn day09(input: &String) {
         }
 
         // find next free spot
-        free_idx = blocks.iter().position(|&b| b==None);
+        free_idx = blocks.iter().take(last_idx - 1).position(|&b| b==None);
     }
+
     let mut checksum = 0;
     for (i, n) in blocks.iter().enumerate() {
-        if n.is_some() {
-            checksum += i * n.unwrap();
+        if let Some(n) = n {
+            checksum += i * n;
         }
     }
     println!("part one checksum: {checksum}");
 
     // part two
     // Attempt to move each file exactly once in order of decreasing file ID number
-
     // This time we'll store as segments
-
-
-    // each block can hold either a id_number, or free space
     let mut segs: Vec<Segment> = vec![];
     let mut id: usize = 0;
+
+    // parse the input into segments. each segment can hold either an id_number, or free space.
     for i in 0..input.len() {
         let n = input[i];
         id = i / 2;
@@ -81,35 +71,28 @@ pub fn day09(input: &String) {
         }
     }
 
-    // 00...111...2...333.44.5555.6666.777.888899
     println!("max block id: {0}", id);
-    loop {
-        // find the segment we want to move
-        let seg_idx = segs.iter().position(|&s| s.id == Some(id));
-        if seg_idx.is_none() {
-            break;
-        }
-        let seg_idx = seg_idx.unwrap();
-        let seg = segs.remove(seg_idx);   // remove it! we have to put it back if we can't find free space
 
-        // find free space to move it
-        let fs_idx = segs.iter().position(|&s| s.id == None && s.size >= seg.size);
-        if fs_idx.is_some() && fs_idx.unwrap() < seg_idx {
-            let fs_idx = fs_idx.unwrap();
-            let fs = segs[fs_idx].clone();
-            // move the file
-            let mut replacement: Vec<Segment> = vec![ seg.clone() ];
-            // put into position fs_idx, replacing fs with contents of replacement
-            segs.splice(fs_idx..fs_idx+1, replacement.into_iter());
-            // replace the seg we removed with an empty
-            segs.insert(seg_idx, Segment{id:None, size:seg.size});
-            // put in empty space if we have any left
-            if (fs.size - seg.size) > 0 {
-                segs.insert(fs_idx+1, Segment { id: None, size: fs.size - seg.size });
+    // find the segment we want to move
+    let mut seg_idx = segs.iter().position(|&s| s.id == Some(id));
+    while let Some(seg_i) = seg_idx {   // while we have a segment to move
+        let seg = segs[seg_i].clone();
+
+        // find enough free space
+        let fs_idx = segs.iter().take(seg_i ).position(|&s| s.id == None && s.size >= seg.size);
+
+        // if we found enough space, move it
+        if let Some(fs_i) = fs_idx {
+            let fs = segs[fs_i].clone();
+            // move the segment into position fs_idx, replacing fs
+            segs.splice(fs_i..fs_i+1, vec![ seg.clone() ]);
+            // replace the segment we removed with an empty
+            segs.splice(seg_i..seg_i+1, vec![ Segment{id:None, size:seg.size} ]);
+            // if the file didn't use up all the space, put the free space in segs
+            let free_space = fs.size - seg.size;
+            if free_space > 0 {
+                segs.insert(fs_i+1, Segment { id: None, size: free_space });
             }
-        } else {
-            // put it back
-            segs.insert(seg_idx, seg);
         }
         // merge empty segs
         segs = segs.into_iter().coalesce(|prev, curr| {
@@ -120,30 +103,23 @@ pub fn day09(input: &String) {
             }
         }).collect_vec();
         // move on to next block
-        if id >= 1 {
-            id -= 1;
-        } else {
+        if id < 1 {
             break;
         }
-        // print current state
-    //     print!("state: ");
-    //     for s in &segs {
-    //         print!("{0} ", s.to_string());
-    //     }
-    //     println!();
+        id -= 1;
+        seg_idx = segs.iter().position(|&s| s.id == Some(id));
     }
 
     // expand the segments into blocks for calculating the checksum
     let blocks: Vec<Option<usize>> = segs.iter().map(
-        |s|        // return s.id, size times
-        iter::repeat(s.id).take(s.size).collect_vec()
+        |s| iter::repeat(s.id).take(s.size).collect_vec()   // return s.id, size times
     ).flatten().collect_vec();
 
+    // calculate part two checksum
     let mut checksum = 0;
-
     for (i,n) in blocks.iter().enumerate() {
-        if n.is_some() {
-            checksum += i * n.unwrap();
+        if let Some(x) = n {
+            checksum += i * x;
         }
     }
     println!("part two checksum: {checksum}");

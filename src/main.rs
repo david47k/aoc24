@@ -10,7 +10,9 @@ pub mod day05;
 pub mod day06;
 pub mod day07;
 pub mod day08;
-mod day09;
+pub mod day09;
+pub mod day10;
+mod vector;
 
 fn main() {
     println!("Advent of Code 2024");
@@ -39,6 +41,7 @@ fn main() {
         7  => day07::day07(&input),
         8  => day08::day08(&input),
         9  => day09::day09(&input),
+        10 => day10::day10(&input),
         _  => println!("Unknown day!"),
     };
 }
