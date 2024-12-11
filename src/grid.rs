@@ -75,6 +75,9 @@ impl Grid {
         }
         false
     }
+    pub fn put_unchecked(&mut self, xy: &XY, value: u8) {
+        self.data[xy.y as usize][xy.x as usize] = value;
+    }
     pub fn find(&self, value: u8) -> Vec<XY> {
         let mut results: Vec<XY> = Vec::new();
         for y in 0..self.h {
