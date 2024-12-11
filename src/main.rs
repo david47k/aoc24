@@ -2,6 +2,7 @@
 // By david47k at d47 dot co
 
 pub mod grid;
+pub mod vector;
 pub mod day01;
 pub mod day02;
 pub mod day03;
@@ -12,7 +13,22 @@ pub mod day07;
 pub mod day08;
 pub mod day09;
 pub mod day10;
-mod vector;
+pub mod day11;
+pub mod day12;
+pub mod day13;
+pub mod day14;
+pub mod day15;
+pub mod day16;
+pub mod day17;
+pub mod day18;
+pub mod day19;
+pub mod day20;
+pub mod day21;
+pub mod day22;
+pub mod day23;
+pub mod day24;
+pub mod day25;
+
 
 fn main() {
     println!("Advent of Code 2024");
@@ -42,6 +58,21 @@ fn main() {
         8  => day08::day08(&input),
         9  => day09::day09(&input),
         10 => day10::day10(&input),
+        11 => day11::day11(&input),
+        12 => day12::day12(&input),
+        13 => day13::day13(&input),
+        14 => day14::day14(&input),
+        15 => day15::day15(&input),
+        16 => day16::day16(&input),
+        17 => day17::day17(&input),
+        18 => day18::day18(&input),
+        19 => day19::day19(&input),
+        20 => day20::day20(&input),
+        21 => day20::day20(&input),
+        22 => day20::day20(&input),
+        23 => day20::day20(&input),
+        24 => day20::day20(&input),
+        25 => day20::day20(&input),
         _  => println!("Unknown day!"),
     };
 }

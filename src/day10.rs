@@ -22,10 +22,10 @@ pub fn day10(input: &String) {
     // for each trailhead
     for th in trailheads {
         let mut nines: BTreeSet<XY> = BTreeSet::new();
-        let mut hike_paths: Vec<Vec<XY>> = vec![];
-        path_walk(&grid, vec![th], &mut nines, &mut hike_paths);
+        let mut unique_hikes: Vec<Vec<XY>> = vec![];
+        path_walk(&grid, vec![th], &mut nines, &mut unique_hikes);
         scores.push(nines.len());
-        ratings.push(hike_paths.len());
+        ratings.push(unique_hikes.len());
     }
 
     //println!("scores: {0:?}", scores);
