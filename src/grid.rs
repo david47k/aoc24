@@ -75,6 +75,14 @@ impl Grid {
         }
         false
     }
+    pub fn replace_fn(&mut self, f: fn(u8) -> u8 ) {
+        for y in 0..self.h {
+            for x in 0..self.w {
+                let mut pt = &mut self.data[y as usize][x as usize];
+                *pt = f(*pt);
+            }
+        }
+    }
     pub fn put_unchecked(&mut self, xy: &XY, value: u8) {
         self.data[xy.y as usize][xy.x as usize] = value;
     }

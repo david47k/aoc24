@@ -70,9 +70,16 @@ impl Vector {
 
 #[derive(Clone, Copy, PartialEq)]
 #[repr(u8)]
-pub enum Move { Up=0, Right=1, Down=2, Left=3 }
+pub enum Move { Up=1, Right=2, Down=4, Left=8 }
+pub const DIR_U: u8 = 1;
+pub const DIR_R: u8 = 2;
+pub const DIR_D: u8 = 4;
+pub const DIR_L: u8 = 8;
 
 impl Move {
+    pub fn u(&self) -> u8 {
+        *self as u8
+    }
     pub fn to_xy(&self) -> XY {
         match self {
             Move::Up    => XY::new( 0, -1 ),
@@ -98,17 +105,18 @@ impl Move {
         }
     }
     pub fn from_u8_unchecked(n: u8) -> Move {
-        if n==0 { Move::Up }
-        else if n==1 { Move::Right }
-        else if n==2 { Move::Down }
-        else { Move::Left }
+        if n==1 { Move::Up }
+        else if n==2 { Move::Right }
+        else if n==4 { Move::Down }
+        else if n==8 { Move::Left }
+        else { panic!("unexpected move value"); }
     }
     pub fn from_u8(n: u8) -> Option<Move> {
         match n {
-            0 => Some(Move::Up),
-            1 => Some(Move::Right),
-            2 => Some(Move::Down),
-            3 => Some(Move::Left),
+            1 => Some(Move::Up),
+            2 => Some(Move::Right),
+            4 => Some(Move::Down),
+            8 => Some(Move::Left),
             _ => None,
         }
     }
