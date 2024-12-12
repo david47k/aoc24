@@ -49,31 +49,31 @@ pub fn day11(input: &String) {
 fn count_digits_odd(n: u32) -> bool {
     // return true if number of digits is odd
     if n < 10 {
-        return true;
+        return (1, false);
     }
     if n < 100 {
-        return false;
+        return (2, true);
     }
     if n < 1000 {
-        return true;
+        return (3, false);
     }
     if n < 10000 {
-        return false;
+        return (4, true);
     }
     if n < 100000 {
-        return true;
+        return (5, false);
     }
     if n < 1000000 {
-        return false;
+        return (6, true);
     }
     if n < 10000000 {
-        return true;
+        return (7, false);
     }
     if n < 100000000 {
-        return false;
+        return (8, true);
     }
     if n < 1000000000 {
-        return true;
+        return (9, false);
     }
     return false;
 }
