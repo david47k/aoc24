@@ -19,23 +19,10 @@ impl Node {
 fn blink_node(src: &BTreeMap<Num,Node>, dest: &mut BTreeMap<Num,Node>, n: Num) {
     let node = src.get(&n).unwrap();
 
-<<<<<<< Updated upstream
-    for i in 0..75 {
-        println!("depth {0}", i+1);
-        let len = stones.len();
-        for si in 0..len {
-            let extra = apply_blink(&mut stones[si]);
-            if let Some(x) = extra {
-                stones.push(x);
-            }
-        }
-        println!("stones {0}", stones.len());
-=======
     // calculate the children, if they don't exist
     if node.children.is_none() {
         dest.get_mut(&n).unwrap().children = Some(calculate_blink(n));
     }
->>>>>>> Stashed changes
 
     // increment the children
     let count = node.count;
@@ -59,10 +46,6 @@ fn blink_node(src: &BTreeMap<Num,Node>, dest: &mut BTreeMap<Num,Node>, n: Num) {
     dest.get_mut(&n).unwrap().count -= count;
 }
 
-<<<<<<< Updated upstream
-fn count_digits_odd(n: u32) -> bool {
-    // return true if number of digits is odd
-=======
 fn calculate_count(map: &BTreeMap<Num, Node>) -> usize {
     map.iter().map(|(_, n)| n.count).sum::<usize>()
 }
@@ -112,7 +95,6 @@ pub fn day11(input: &String) {
 
 fn count_digits(n: usize) -> (usize, bool) {
     // return true if number of digits is even
->>>>>>> Stashed changes
     if n < 10 {
         return true;
     }
@@ -140,9 +122,6 @@ fn count_digits(n: usize) -> (usize, bool) {
     if n < 1000000000 {
         return true;
     }
-<<<<<<< Updated upstream
-    return false;
-=======
     if n < 10000000000 {
         return (10, true);
     }
@@ -153,32 +132,20 @@ fn count_digits(n: usize) -> (usize, bool) {
         return (12, true);
     }
     panic!("count_digits input is too high!");
->>>>>>> Stashed changes
 }
 
 fn calculate_blink(n: Num) -> (Num, Option<Num>) {
     if n.0 == 0 {
         return (Num(1), None);
     }
-<<<<<<< Updated upstream
-    if !count_digits_odd(*n) {
-        let s = n.to_string();
-        let lh = s[0..s.len() / 2].parse::<u32>().expect("number");
-        let rh = s[s.len() / 2..s.len()].parse::<u32>().expect("number");
-        *n = lh;
-        return Some(rh);
-=======
     let c = count_digits(n.0);
     if c.1 {
         let (lh,rh) = split_num(n.0, c.0);
         return (Num(lh),Some(Num(rh)));
->>>>>>> Stashed changes
     }
     return (Num(n.0 * 2024), None);
 }
 
-<<<<<<< Updated upstream
-=======
 fn split_num(n: usize, c: usize) -> (usize, usize) {
     // split n into two, if number of digits is even
     // c is count of digits
@@ -192,4 +159,3 @@ fn split_num(n: usize, c: usize) -> (usize, usize) {
         _ => panic!("expect even number of digits <= 12"),
     }
 }
->>>>>>> Stashed changes
