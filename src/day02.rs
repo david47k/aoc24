@@ -1,4 +1,4 @@
-pub fn day02(input: &String) {
+pub fn day02(input: &String) -> (usize,usize) {
     // split input by whitespace, and convert to unsigned integers
     let reports = input.split('\n').collect::<Vec<&str>>();
     let reports: Vec<Vec<usize>> = reports.into_iter().map(|r| r.split_whitespace().collect::<Vec<&str>>().into_iter().map(|s| s.parse::<usize>().expect("Input should be unsigned integers")).collect()).collect();
@@ -70,4 +70,6 @@ pub fn day02(input: &String) {
     }
 
     println!("part two: {safe2}");
+
+    (safe, safe2)
 }

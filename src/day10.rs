@@ -3,7 +3,7 @@ use itertools::Itertools;
 use crate::vector::{*};
 use std::collections::{*};
 
-pub fn day10(input: &String) {
+pub fn day10(input: &String) -> (usize,usize) {
     // find trails from trailhead (0) to peak (9), incrementing one each time
     // trailhead score is how many 9s are reachable
     // sum of trailhead scores is the answer to part one
@@ -33,6 +33,7 @@ pub fn day10(input: &String) {
     let th_ratings: usize = ratings.iter().sum();
     println!("part one scores sum: {th_score}");
     println!("part two ratings sum: {th_ratings}");
+    (th_score, th_ratings)
 }
 
 fn path_walk(grid: &Grid, path: Vec<XY>, nines: &mut BTreeSet<XY>, hike_paths: &mut Vec<Vec<XY>> ) {

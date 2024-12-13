@@ -1,4 +1,4 @@
-pub fn day06(input: &String) {
+pub fn day06(input: &String) -> (usize,usize) {
     // where does the guard go?
     // read the input into a vec<vec<char>>
     let rows = input.lines().collect::<Vec<&str>>();
@@ -183,4 +183,6 @@ pub fn day06(input: &String) {
 
     }
     println!("part two looped_count: {looped_count}");
+
+    (v, looped_count)
 }

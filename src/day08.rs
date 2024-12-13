@@ -1,7 +1,7 @@
 use crate::grid::{*};
 use itertools::Itertools;
 
-pub fn day08(input: &String) {
+pub fn day08(input: &String) -> (usize,usize) {
 
     // nodes are a-zA-Z0-9
     // antinodes are created in two directions from each pair of matching nodes\
@@ -42,6 +42,7 @@ pub fn day08(input: &String) {
     antinodes.dedup();
     let antinodes = antinodes.iter().filter(|n| n.is_valid(&grid)).collect_vec();
     println!("part one: unique antinodes: {}", antinodes.len());
+    let result1 = antinodes.len();
 
     // part two
     // antinodes also occur at pairs, and at every multiple of the spacing
@@ -87,4 +88,7 @@ pub fn day08(input: &String) {
     antinodes.sort();
     antinodes.dedup();
     println!("part two: unique antinodes: {}", antinodes.len());
+    let result2 = antinodes.len();
+
+    (result1, result2)
 }

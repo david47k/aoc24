@@ -3,6 +3,7 @@
 //use crate::grid::{*};
 //use crate::vector::{*};
 
-pub fn day17(_input: &String) {
+pub fn day17(_input: &String) -> (usize, usize) {
+	(0,0)
 
 }

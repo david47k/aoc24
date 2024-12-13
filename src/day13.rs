@@ -15,7 +15,7 @@ struct Combo {
     b_count: usize,
     cost: usize,
 }
-pub fn day13(input: &String) {
+pub fn day13(input: &String) -> (usize,usize) {
     let mut total_cost: usize = 0;
     let input = input.lines().collect_vec();
     let machine_count = (input.len()+1)/ 4;
@@ -89,7 +89,7 @@ pub fn day13(input: &String) {
         let ac = ((yi/a.1).round()) as usize;     // how many times to press button a
         let bc = ((t.1-yi)/b.1).round() as usize; // how many times to press button b
 
-        println!("  xi: {xi}, yi: {yi}, cb: {cb}, ac: {ac}, bc: {bc}");
+        // println!("  xi: {xi}, yi: {yi}, cb: {cb}, ac: {ac}, bc: {bc}");
 
         // test the answer to see if it is legit in integer terms
         if (m.a.0 * ac + m.b.0 * bc) == m.t.0 && (m.a.1 * ac + m.b.1 * bc) == m.t.1 {
@@ -103,4 +103,5 @@ pub fn day13(input: &String) {
 
     println!("part one total cost: {total_cost}");
     println!("part two total cost: {total_cost_two}");
+    (total_cost, total_cost_two)
 }

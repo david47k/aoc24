@@ -1,4 +1,4 @@
-pub fn day04(input: &String) {
+pub fn day04(input: &String) -> (usize,usize) {
     // word search! for XMAS
     // get text as a grid of chars
     let rows = input.lines().collect::<Vec<&str>>();
@@ -68,4 +68,5 @@ pub fn day04(input: &String) {
     }
 
     println!("part two count: {c2}");
+    (c, c2)
 }

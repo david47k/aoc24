@@ -5,7 +5,7 @@ use crate::vector::{*};
 
 use crate::grid::Grid;
 
-pub fn day12(input: &String) {
+pub fn day12(input: &String) -> (usize,usize) {
     // read into grid
     let grid = Grid::from_str(input);
     println!("grid w {0} h {1}", grid.w, grid.h);
@@ -38,6 +38,7 @@ pub fn day12(input: &String) {
     }
     println!("Total price is {}", total_price);
     println!("Total discounted price is {}", total_discount_price);
+    (total_price,total_discount_price)
 }
 
 fn count_corners(grid: &Grid, visited: &Vec<XY>) -> usize {
@@ -64,6 +65,7 @@ fn count_corners(grid: &Grid, visited: &Vec<XY>) -> usize {
         }
     }
     println!("corner count part 1: {}", count);
+
     // look for convex corners
     for y in 0..grid.h {
         for x in 0..grid.w {
