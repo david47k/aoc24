@@ -47,6 +47,13 @@ impl Grid {
             data: vec![vec![0; w as usize]; h as usize],
         }
     }
+    pub fn new_with(w: isize, h: isize, c: u8) -> Self {
+        Self {
+            w,
+            h,
+            data: vec![vec![c; w as usize]; h as usize],
+        }
+    }
     pub fn from_str(s: &str) -> Self {
         let rows = s.lines().collect::<Vec<&str>>();
         let data: Vec<Vec<u8>> = rows.iter().map(|r| r.bytes().collect::<Vec<u8>>()).collect();
@@ -86,6 +93,9 @@ impl Grid {
     pub fn put_unchecked(&mut self, xy: &XY, value: u8) {
         self.data[xy.y as usize][xy.x as usize] = value;
     }
+    pub fn put_unchecked_t(&mut self, xy: (isize,isize), value: u8) {
+        self.data[xy.1 as usize][xy.0 as usize] = value;
+    }
     pub fn find(&self, value: u8) -> Vec<XY> {
         let mut results: Vec<XY> = Vec::new();
         for y in 0..self.h {
@@ -107,6 +117,14 @@ impl Grid {
             }
         }
         results
+    }
+    pub fn to_string(&self) -> String {
+        let mut s = String::new();
+        for y in 0..self.h {
+            s += &self.data[y as usize].iter().map(|b| (*b as char).to_string()).collect::<String>();
+            s += "\n";
+        }
+        s
     }
 }
 
