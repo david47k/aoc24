@@ -61,6 +61,10 @@ pub fn day14(input: &String) -> (usize, usize) {
 
 	// part two
 	// now we have to actually look at the grid !!!
+	// the pattern for the tree was originally discovered by filtering out times where the
+	// middle vertical third of the grid had a much higher density of robots than expected
+	// i.e. > 2/3, and scrolling through a few pages of output. the discovered value from
+	// that method was too high, but it showed us what to look for!
 
 	let mut p2_result = 0_usize;
 
