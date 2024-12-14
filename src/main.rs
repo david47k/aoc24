@@ -114,5 +114,6 @@ fn gen_test_data() -> Vec<(usize,String,(usize,usize))> {
         ( 11, "ex11.txt".to_string(), (55312, 65601038650482) ),
         ( 12, "ex12c.txt".to_string(), (1930, 1206) ),
         ( 13, "ex13.txt".to_string(), (480, 875318608908) ),
+        ( 14, "ex14.txt".to_string(), (12, 0) ),
     ]
 }
