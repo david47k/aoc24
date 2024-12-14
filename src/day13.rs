@@ -73,6 +73,8 @@ pub fn day13(input: &String) -> (usize,usize) {
         //
         // we'll calculate the intersection point, then check we can get there in an integer multiple of the button move.
         // we are using floats here, but could also use e.g. the Fraction crate
+        //
+        // #neat_things_seen: simpler algebra, no need to consider the line formula!
 
         println!("machine {}: ", i+1);
         println!("  {:?} {:?} {:?}", m.a, m.b, m.t);
@@ -84,7 +86,7 @@ pub fn day13(input: &String) -> (usize,usize) {
         let ma = a.1 / a.0;                 // gradient of line a
         let mb = b.1 / b.0;                 // gradient of line b
         let cb = t.1 - (b.1/b.0) * t.0;     // y-intercept of line b
-        let xi = (ma - mb) / cb;            // x of intercept point
+        let _xi = (ma - mb) / cb;            // x of intercept point
         let yi = ma  * cb / (ma - mb);      // y of intercept point
         let ac = ((yi/a.1).round()) as usize;     // how many times to press button a
         let bc = ((t.1-yi)/b.1).round() as usize; // how many times to press button b

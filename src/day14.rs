@@ -1,10 +1,8 @@
 use itertools::Itertools;
 //use std::collections::{*};
-//use crate::grid::{*};
 //use crate::vector::{*};
 
 use crate::grid::{*};
-use crate::vector::{*};
 
 #[derive(Debug,Clone,Copy)]
 struct Robot {
@@ -82,7 +80,7 @@ pub fn day14(input: &String) -> (usize, usize) {
 			p2_result = t as usize;
 			break;
 		}
-		if t % 100 == 0 {
+		if t % 1000 == 0 {
 			println!("--- t={} ---", t);
 		}
 	}

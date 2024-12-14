@@ -10,12 +10,6 @@ struct Node {
     children: Option<(Num, Option<Num>)>,
 }
 
-impl Node {
-    fn to_string(&self) -> String {
-        format!("{0}", self.count)
-    }
-}
-
 fn blink_node(src: &BTreeMap<Num,Node>, dest: &mut BTreeMap<Num,Node>, n: Num) {
     let node = src.get(&n).unwrap();
 

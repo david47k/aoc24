@@ -121,7 +121,7 @@ impl Grid {
     pub fn to_string(&self) -> String {
         let mut s = String::new();
         for y in 0..self.h {
-            s += &self.data[y as usize].iter().map(|b| (*b as char).to_string()).collect::<String>();
+            s += &String::from_utf8(self.data[y as usize].clone()).expect("valid string");
             s += "\n";
         }
         s

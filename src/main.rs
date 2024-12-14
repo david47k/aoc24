@@ -1,8 +1,6 @@
 // Advent of Code 2024
 // By david47k at d47 dot co
 
-use itertools::Itertools;
-
 pub mod grid;
 pub mod vector;
 pub mod day01;
