@@ -7,7 +7,7 @@
 
 use crate::grid::Grid;
 
-#[derive(Clone, Copy, PartialEq, Ord, PartialOrd, Eq)]
+#[derive(Clone, Copy, PartialEq, Ord, PartialOrd, Eq, Debug)]
 pub struct Vector (pub isize, pub isize);
 
 impl Vector {
@@ -43,14 +43,14 @@ impl Vector {
 // non-js
 impl Vector {
     pub fn add_dir(&self, dir: &Move) -> Self {
-        let d = *dir as i32; //1, 2, 4, 8
-        Self(self.0+((d==1) as isize)-((d==3) as isize),self.1-((d==0) as isize)+((d==2) as isize))
-        /*		match dir {
+        //let d = *dir as i32; //1, 2, 4, 8
+        //Self(self.0+((d==1) as isize)-((d==3) as isize),self.1-((d==0) as isize)+((d==2) as isize))
+        		match dir {
                     Move::Up    => Self( self.0,   self.1-1 ),
                     Move::Right => Self( self.0+1, self.1   ),
                     Move::Down  => Self( self.0,   self.1+1 ),
                     Move::Left  => Self( self.0-1, self.1   ),
-                }		*/
+                }
     }
     pub fn add_dir2(&self, dir: &Move) -> Self {
         match dir {
@@ -75,7 +75,7 @@ impl Vector {
 }
 
 
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 #[repr(u8)]
 pub enum Move { Up=1, Right=2, Down=4, Left=8 }
 pub const DIR_U: u8 = 1;
@@ -86,14 +86,6 @@ pub const DIR_L: u8 = 8;
 impl Move {
     pub fn u(&self) -> u8 {
         *self as u8
-    }
-    pub fn to_xy(&self) -> Vector {
-        match self {
-            Move::Up    => Vector::new( 0, -1 ),
-            Move::Right => Vector::new( 1,  0 ),
-            Move::Down  => Vector::new( 0,  1 ),
-            Move::Left  => Vector::new(-1,  0 ),
-        }
     }
     pub fn to_vector(&self) -> Vector {
         match self {
@@ -133,6 +125,15 @@ impl Move {
             Move::Left	=> Move::Right,
             Move::Right	=> Move::Left,
             Move::Down	=> Move::Up,
+        }
+    }
+    pub fn from_char_unchecked(c: char) -> Move {
+        match c {
+            '^'	=> Move::Up,
+            '>' => Move::Right,
+            'v' => Move::Down,
+            '<' => Move::Left,
+            _   => panic!("unexpected move value"),
         }
     }
 }

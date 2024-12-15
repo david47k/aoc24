@@ -49,13 +49,13 @@ fn path_walk(grid: &Grid, path: Vec<Vector>, nines: &mut BTreeSet<Vector>, hike_
 
     // what directions can we go from here?
     let possibles = ALLMOVES.iter().filter(|&m| {
-        let nxy = xy.add(&m.to_xy());
+        let nxy = xy.add(&m.to_vector());
         grid.has_xy(&nxy) && (grid.get_unchecked(&nxy) == height + 1)
     }).collect_vec();
 
     // perform moves
     possibles.iter().for_each(|m| {
-        let nxy = xy.add(&m.to_xy());
+        let nxy = xy.add(&m.to_vector());
         let mut npath = path.clone();
         npath.push(nxy);
         path_walk(grid, npath, nines, hike_paths);

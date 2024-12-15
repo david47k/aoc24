@@ -4,7 +4,7 @@ use itertools::Itertools;
 pub struct Grid {
     pub w: isize,
     pub h: isize,
-    data: Vec<Vec<u8>>,
+    pub data: Vec<Vec<u8>>,
 }
 
 pub const NDIR_U:  usize = 0;
@@ -106,6 +106,17 @@ impl Grid {
         let mut s = String::new();
         for y in 0..self.h {
             s += &String::from_utf8(self.data[y as usize].clone()).expect("valid string");
+            s += "\n";
+        }
+        s
+    }
+    pub fn to_string_with_pt(&self, pt: &Vector) -> String {
+        let mut s = String::new();
+        let mut d = self.data.clone();
+        d[pt.1 as usize][pt.0 as usize] = b'@';
+        for y in 0..self.h {
+            let rs = String::from_utf8(d[y as usize].clone()).expect("valid string");
+            s += &rs;
             s += "\n";
         }
         s

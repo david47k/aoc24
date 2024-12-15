@@ -85,7 +85,7 @@ fn check_surrounds(grid: &Grid, visited: &mut Vec<Vector>, crop: u8, xy: Vector)
     // perimeter = 0
 
     ALLMOVES.iter().for_each(|m| {
-        let nxy = xy.add(&m.to_xy());
+        let nxy = xy.add(&m.to_vector());
         if !grid.has_xy(&nxy) || crop != grid.get(&nxy).unwrap() {
             perimeter += 1;
             return; // from closure
