@@ -7,10 +7,12 @@
 use crate::grid::XY;
 
 #[derive(Clone, Copy, PartialEq, Ord, PartialOrd, Eq)]
-pub struct Vector (pub i32, pub i32);
+pub struct Vector (pub isize, pub isize);
+
+//type V Vector;
 
 impl Vector {
-    pub fn new(x: i32, y: i32) -> Vector {
+    pub fn new(x: isize, y: isize) -> Vector {
         Self(x,y)
     }
     pub fn add(&self, dir: &Vector) -> Self {
@@ -19,7 +21,7 @@ impl Vector {
     pub fn double(&self) -> Self {
         Self(self.0 * 2, self.1 * 2)
     }
-    pub fn mul(&self, n: i32) -> Self {
+    pub fn mul(&self, n: isize) -> Self {
         Self(self.0 * n, self.1 * n)
     }
     pub fn rotr(&self) -> Self {
@@ -28,7 +30,7 @@ impl Vector {
     pub fn rotl(&self) -> Self {
         Self(-self.1, self.0)
     }
-    pub fn scale_by(&self, n: i32) -> Self {
+    pub fn scale_by(&self, n: isize) -> Self {
         Self(self.0 * n, self.1 * n)
     }
     pub fn eq(&self, a: &Vector) -> bool {
@@ -40,7 +42,7 @@ impl Vector {
 impl Vector {
     pub fn add_dir(&self, dir: &Move) -> Self {
         let d = *dir as i32; //1, 2, 4, 8
-        Self(self.0+((d==1) as i32)-((d==3) as i32),self.1-((d==0) as i32)+((d==2) as i32))
+        Self(self.0+((d==1) as isize)-((d==3) as isize),self.1-((d==0) as isize)+((d==2) as isize))
         /*		match dir {
                     Move::Up    => Self( self.0,   self.1-1 ),
                     Move::Right => Self( self.0+1, self.1   ),
