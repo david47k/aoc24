@@ -1,45 +1,23 @@
 use crate::vector::Vector;
-
-#[derive(Ord, PartialOrd, Eq, PartialEq, Debug, Copy, Clone)]
-pub struct VectorOld {
-    pub x: isize,
-    pub y: isize,
-}
-impl VectorOld {
-    pub fn new(x: isize, y: isize) -> Self {
-        Self { x, y }
-    }
-    pub fn sub(&self, b: &VectorOld) -> Self {
-        Self {
-            x: self.x - b.x,
-            y: self.y - b.y,
-        }
-    }
-    pub fn add(&self, b: &VectorOld) -> Self {
-        Self {
-            x: self.x + b.x,
-            y: self.y + b.y,
-        }
-    }
-    pub fn neg(&self) -> VectorOld {
-        Self {
-            x: -self.x,
-            y: -self.y,
-        }
-    }
-    pub fn is_valid(&self, grid: &Grid) -> bool {
-        self.x >= 0 && self.x < grid.w && self.y >= 0 && self.y < grid.h
-    }
-    pub fn to_string(&self) -> String {
-        format!("({},{})", self.x, self.y)
-    }
-}
+use itertools::Itertools;
 
 pub struct Grid {
     pub w: isize,
     pub h: isize,
     data: Vec<Vec<u8>>,
 }
+
+pub const NDIR_U:  usize = 0;
+pub const NDIR_UR: usize = 1;
+pub const NDIR_R:  usize = 2;
+pub const NDIR_DR: usize = 3;
+pub const NDIR_D:  usize = 4;
+pub const NDIR_DL: usize = 5;
+pub const NDIR_L:  usize = 6;
+pub const NDIR_UL: usize = 7;
+
+pub const NDIRS: [Vector; 8] = [ Vector(0,-1), Vector(1,-1), Vector(1,0), Vector(1,1),
+Vector(0,1), Vector(-1,1), Vector(-1,0), Vector(-1,-1) ];
 
 impl Grid {
     pub fn new(w: isize, h: isize) -> Self {
@@ -76,6 +54,10 @@ impl Grid {
     }
     pub fn get_unchecked(&self, xy: &Vector) -> u8 {
         self.data[xy.1 as usize][xy.0 as usize]
+    }
+    pub fn get_neighbours(&self, xy: &Vector) -> Vec<Option<u8>> {
+        // U, UR, R, DR, D, DL, L, UL.
+        NDIRS.iter().map(|d| self.get(&xy.add(&d))).collect_vec()
     }
     pub fn put(&mut self, xy: &Vector, value: u8) -> bool {
         if xy.is_valid(&self) {

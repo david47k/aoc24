@@ -10,8 +10,6 @@ use crate::grid::Grid;
 #[derive(Clone, Copy, PartialEq, Ord, PartialOrd, Eq)]
 pub struct Vector (pub isize, pub isize);
 
-//type V Vector;
-
 impl Vector {
     pub fn new(x: isize, y: isize) -> Vector {
         Self(x,y)
