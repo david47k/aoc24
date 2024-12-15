@@ -1,6 +1,6 @@
 use itertools::Itertools;
 //use std::collections::{*};
-use crate::grid::{*};
+//use crate::grid::{*};
 use crate::vector::{*};
 
 use crate::grid::Grid;
@@ -17,7 +17,7 @@ pub fn day12(input: &String) -> (usize,usize) {
     for &crop in b"ABCDEFGHIJKLMNOPQRSTUVWXYZ" {
         // find a crop region
         let crop_spots = grid.find(crop);
-        let mut visited: Vec<XY> = vec![];
+        let mut visited: Vec<Vector> = vec![];
         for &xy in &crop_spots {
             if visited.contains(&xy) { continue; }
             let mut fenced_sides = Grid::new(grid.w, grid.h);     // for part 2: save sides!
@@ -41,11 +41,11 @@ pub fn day12(input: &String) -> (usize,usize) {
     (total_price,total_discount_price)
 }
 
-fn count_corners(grid: &Grid, visited: &Vec<XY>) -> usize {
+fn count_corners(grid: &Grid, visited: &Vec<Vector>) -> usize {
     let mut count: usize = 0;
     for y in 0..grid.h {
         for x in 0..grid.w {
-            let sides = grid.get_unchecked(&XY::new(x,y));
+            let sides = grid.get_unchecked(&Vector::new(x,y));
             // there are 16 total combinations, only some are corners
             let options = [
                 (DIR_U|DIR_L, 1),
@@ -69,16 +69,16 @@ fn count_corners(grid: &Grid, visited: &Vec<XY>) -> usize {
     // look for convex corners
     for y in 0..grid.h {
         for x in 0..grid.w {
-            let xy = XY::new(x,y);
-            let sides = grid.get_unchecked(&XY::new(x,y));
+            let xy = Vector::new(x,y);
+            let sides = grid.get_unchecked(&Vector::new(x,y));
             // we can only check spots that are NOT in our crop_spots
-            let pts = [ &XY::new(-1,-1), &XY::new(1,-1), &XY::new(-1,1), &XY::new(1,1) ];
+            let pts = [ &Vector::new(-1,-1), &Vector::new(1,-1), &Vector::new(-1,1), &Vector::new(1,1) ];
             let pts = pts.iter().map(|&pt| xy.add(pt)).collect_vec();
             let mut TL = grid.get(&pts[0]);
             let mut TR = grid.get(&pts[1]);
             let mut BL = grid.get(&pts[2]);
             let mut BR = grid.get(&pts[3]);
-            let pts2 = [ &XY::new(0,-1), &XY::new(1,0), &XY::new(0,1), &XY::new(-1,0) ];
+            let pts2 = [ &Vector::new(0,-1), &Vector::new(1,0), &Vector::new(0,1), &Vector::new(-1,0) ];
             if TL.is_some() {
                 // check if ABOVE and LEFT of x,y is NOT in visited.. to avoid double-counting touching corners
                 if !visited.contains(&xy.add(&pts2[0])) && !visited.contains(&xy.add(&pts2[3])) { TL = None; }
@@ -125,7 +125,7 @@ struct AP {
     area: usize,
     perimeter: usize,
 }
-fn check_surrounds(grid: &Grid, visited: &mut Vec<XY>, crop: u8, xy: XY, fenced_sides: &mut Grid) -> AP
+fn check_surrounds(grid: &Grid, visited: &mut Vec<Vector>, crop: u8, xy: Vector, fenced_sides: &mut Grid) -> AP
 {
     let mut perimeter: usize = 0;
     let mut area: usize = 0;

@@ -1,25 +1,27 @@
+use crate::vector::Vector;
+
 #[derive(Ord, PartialOrd, Eq, PartialEq, Debug, Copy, Clone)]
-pub struct XY {
+pub struct VectorOld {
     pub x: isize,
     pub y: isize,
 }
-impl XY {
+impl VectorOld {
     pub fn new(x: isize, y: isize) -> Self {
         Self { x, y }
     }
-    pub fn sub(&self, b: &XY) -> Self {
+    pub fn sub(&self, b: &VectorOld) -> Self {
         Self {
             x: self.x - b.x,
             y: self.y - b.y,
         }
     }
-    pub fn add(&self, b: &XY) -> Self {
+    pub fn add(&self, b: &VectorOld) -> Self {
         Self {
             x: self.x + b.x,
             y: self.y + b.y,
         }
     }
-    pub fn neg(&self) -> XY {
+    pub fn neg(&self) -> VectorOld {
         Self {
             x: -self.x,
             y: -self.y,
@@ -63,21 +65,21 @@ impl Grid {
             data,
         }
     }
-    pub fn has_xy(&self, xy: &XY) -> bool {
-        xy.x >= 0 && xy.x < self.w && xy.y >= 0 && xy.y < self.h
+    pub fn has_xy(&self, xy: &Vector) -> bool {
+        xy.0 >= 0 && xy.0 < self.w && xy.1 >= 0 && xy.1 < self.h
     }
-    pub fn get(&self, xy: &XY) -> Option<u8> {
+    pub fn get(&self, xy: &Vector) -> Option<u8> {
         if xy.is_valid(&self) {
-            return Some(self.data[xy.y as usize][xy.x as usize]);
+            return Some(self.data[xy.1 as usize][xy.0 as usize]);
         }
         None
     }
-    pub fn get_unchecked(&self, xy: &XY) -> u8 {
-        self.data[xy.y as usize][xy.x as usize]
+    pub fn get_unchecked(&self, xy: &Vector) -> u8 {
+        self.data[xy.1 as usize][xy.0 as usize]
     }
-    pub fn put(&mut self, xy: &XY, value: u8) -> bool {
+    pub fn put(&mut self, xy: &Vector, value: u8) -> bool {
         if xy.is_valid(&self) {
-            self.data[xy.y as usize][xy.x as usize] = value;
+            self.data[xy.1 as usize][xy.0 as usize] = value;
             return true;
         }
         false
@@ -90,29 +92,29 @@ impl Grid {
             }
         }
     }
-    pub fn put_unchecked(&mut self, xy: &XY, value: u8) {
-        self.data[xy.y as usize][xy.x as usize] = value;
+    pub fn put_unchecked(&mut self, xy: &Vector, value: u8) {
+        self.data[xy.1 as usize][xy.0 as usize] = value;
     }
     pub fn put_unchecked_t(&mut self, xy: (isize,isize), value: u8) {
         self.data[xy.1 as usize][xy.0 as usize] = value;
     }
-    pub fn find(&self, value: u8) -> Vec<XY> {
-        let mut results: Vec<XY> = Vec::new();
+    pub fn find(&self, value: u8) -> Vec<Vector> {
+        let mut results: Vec<Vector> = Vec::new();
         for y in 0..self.h {
             for x in 0..self.w {
                 if self.data[y as usize][x as usize] == value {
-                    results.push(XY::new(x,y));
+                    results.push(Vector::new(x,y));
                 }
             }
         }
         results
     }
-    pub fn find_fn(&self, f: fn(u8) -> bool) -> Vec<XY> {
-        let mut results: Vec<XY> = Vec::new();
+    pub fn find_fn(&self, f: fn(u8) -> bool) -> Vec<Vector> {
+        let mut results: Vec<Vector> = Vec::new();
         for y in 0..self.h {
             for x in 0..self.w {
                 if f(self.data[y as usize][x as usize]) {
-                    results.push(XY::new(x,y));
+                    results.push(Vector::new(x,y));
                 }
             }
         }

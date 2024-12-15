@@ -4,7 +4,8 @@
 // vector.rs: has vector for points / moves / directions and paths
 //
 // A point and a direction can both be implemented as a Vector
-use crate::grid::XY;
+
+use crate::grid::Grid;
 
 #[derive(Clone, Copy, PartialEq, Ord, PartialOrd, Eq)]
 pub struct Vector (pub isize, pub isize);
@@ -17,6 +18,9 @@ impl Vector {
     }
     pub fn add(&self, dir: &Vector) -> Self {
         Self(self.0 + dir.0, self.1 + dir.1)
+    }
+    pub fn sub(&self, v: &Vector) -> Self {
+        Self(self.0 - v.0, self.1 - v.1)
     }
     pub fn double(&self) -> Self {
         Self(self.0 * 2, self.1 * 2)
@@ -67,6 +71,9 @@ impl Vector {
     pub fn to_string(&self) -> String {
         format!("({},{})",self.0,self.1)
     }
+    pub fn is_valid(&self, grid: &Grid) -> bool {
+        self.0 >= 0 && self.0 < grid.w && self.1 >= 0 && self.1 < grid.h
+    }
 }
 
 
@@ -82,12 +89,12 @@ impl Move {
     pub fn u(&self) -> u8 {
         *self as u8
     }
-    pub fn to_xy(&self) -> XY {
+    pub fn to_xy(&self) -> Vector {
         match self {
-            Move::Up    => XY::new( 0, -1 ),
-            Move::Right => XY::new( 1,  0 ),
-            Move::Down  => XY::new( 0,  1 ),
-            Move::Left  => XY::new(-1,  0 ),
+            Move::Up    => Vector::new( 0, -1 ),
+            Move::Right => Vector::new( 1,  0 ),
+            Move::Down  => Vector::new( 0,  1 ),
+            Move::Left  => Vector::new(-1,  0 ),
         }
     }
     pub fn to_vector(&self) -> Vector {

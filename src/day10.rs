@@ -21,8 +21,8 @@ pub fn day10(input: &String) -> (usize,usize) {
 
     // for each trailhead
     for th in trailheads {
-        let mut nines: BTreeSet<XY> = BTreeSet::new();
-        let mut unique_hikes: Vec<Vec<XY>> = vec![];
+        let mut nines: BTreeSet<Vector> = BTreeSet::new();
+        let mut unique_hikes: Vec<Vec<Vector>> = vec![];
         path_walk(&grid, vec![th], &mut nines, &mut unique_hikes);
         scores.push(nines.len());
         ratings.push(unique_hikes.len());
@@ -36,12 +36,12 @@ pub fn day10(input: &String) -> (usize,usize) {
     (th_score, th_ratings)
 }
 
-fn path_walk(grid: &Grid, path: Vec<XY>, nines: &mut BTreeSet<XY>, hike_paths: &mut Vec<Vec<XY>> ) {
+fn path_walk(grid: &Grid, path: Vec<Vector>, nines: &mut BTreeSet<Vector>, hike_paths: &mut Vec<Vec<Vector>> ) {
     let xy = path.last().unwrap();
     let height = grid.get_unchecked(&xy);
 
     // if we are at a nine, save the position
-    if grid.get(path.last().expect("XY")).expect("valid XY") == b'9' {
+    if grid.get(path.last().expect("Vector")).expect("valid Vector") == b'9' {
         nines.insert(xy.clone());
         hike_paths.push(path.clone());
         return;
