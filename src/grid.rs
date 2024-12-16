@@ -4,7 +4,7 @@ use itertools::Itertools;
 pub struct Grid {
     pub w: isize,
     pub h: isize,
-    pub data: Vec<Vec<u8>>,
+    pub data: Vec<u8>,
 }
 
 pub const NDIR_U:  usize = 0;
@@ -24,19 +24,19 @@ impl Grid {
         Self {
             w,
             h,
-            data: vec![vec![0; w as usize]; h as usize],
+            data: vec![b'.'; w as usize * h as usize],
         }
     }
     pub fn new_with(w: isize, h: isize, c: u8) -> Self {
         Self {
             w,
             h,
-            data: vec![vec![c; w as usize]; h as usize],
+            data: vec![c as u8; w as usize * h as usize],
         }
     }
     pub fn from_str(s: &str) -> Self {
         let rows = s.lines().collect::<Vec<&str>>();
-        let data: Vec<Vec<u8>> = rows.iter().map(|r| r.bytes().collect::<Vec<u8>>()).collect();
+        let data: Vec<u8> = rows.iter().map(|r| r.bytes().collect::<Vec<u8>>()).flatten().collect();
         Self {
             h: rows.len() as isize,
             w: rows[0].len() as isize,
@@ -48,12 +48,12 @@ impl Grid {
     }
     pub fn get(&self, xy: &Vector) -> Option<u8> {
         if xy.is_valid(&self) {
-            return Some(self.data[xy.1 as usize][xy.0 as usize]);
+            return Some(self.data[xy.1 as usize * self.w as usize + xy.0 as usize]);
         }
         None
     }
     pub fn get_unchecked(&self, xy: &Vector) -> u8 {
-        self.data[xy.1 as usize][xy.0 as usize]
+        self.data[xy.1 as usize * self.w as usize + xy.0 as usize]
     }
     pub fn get_neighbours(&self, xy: &Vector) -> Vec<Option<u8>> {
         // U, UR, R, DR, D, DL, L, UL.
@@ -61,7 +61,7 @@ impl Grid {
     }
     pub fn put(&mut self, xy: &Vector, value: u8) -> bool {
         if xy.is_valid(&self) {
-            self.data[xy.1 as usize][xy.0 as usize] = value;
+            self.data[xy.1 as usize * self.w as usize + xy.0 as usize] = value;
             return true;
         }
         false
@@ -69,22 +69,22 @@ impl Grid {
     pub fn replace_fn(&mut self, f: fn(u8) -> u8 ) {
         for y in 0..self.h {
             for x in 0..self.w {
-                let pt = &mut self.data[y as usize][x as usize];
+                let pt = &mut self.data[y as usize * self.w as usize + x as usize];
                 *pt = f(*pt);
             }
         }
     }
     pub fn put_unchecked(&mut self, xy: &Vector, value: u8) {
-        self.data[xy.1 as usize][xy.0 as usize] = value;
+        self.data[xy.1 as usize * self.w as usize + xy.0 as usize] = value;
     }
     pub fn put_unchecked_t(&mut self, xy: (isize,isize), value: u8) {
-        self.data[xy.1 as usize][xy.0 as usize] = value;
+        self.data[xy.1 as usize * self.w as usize + xy.0 as usize] = value;
     }
     pub fn find(&self, value: u8) -> Vec<Vector> {
         let mut results: Vec<Vector> = Vec::new();
         for y in 0..self.h {
             for x in 0..self.w {
-                if self.data[y as usize][x as usize] == value {
+                if self.data[y as usize * self.w as usize + x as usize] == value {
                     results.push(Vector::new(x,y));
                 }
             }
@@ -95,7 +95,7 @@ impl Grid {
         let mut results: Vec<Vector> = Vec::new();
         for y in 0..self.h {
             for x in 0..self.w {
-                if f(self.data[y as usize][x as usize]) {
+                if f(self.data[y as usize * self.w as usize + x as usize]) {
                     results.push(Vector::new(x,y));
                 }
             }
@@ -105,7 +105,7 @@ impl Grid {
     pub fn to_string(&self) -> String {
         let mut s = String::new();
         for y in 0..self.h {
-            s += &String::from_utf8(self.data[y as usize].clone()).expect("valid string");
+            s += &String::from_utf8(self.data[y as usize * self.w as usize..(y as usize + 1) * self.w as usize].to_vec()).expect("valid string");
             s += "\n";
         }
         s
@@ -113,9 +113,9 @@ impl Grid {
     pub fn to_string_with_pt(&self, pt: &Vector) -> String {
         let mut s = String::new();
         let mut d = self.data.clone();
-        d[pt.1 as usize][pt.0 as usize] = b'@';
+        d[pt.1 as usize * self.w as usize + pt.0 as usize] = b'@';
         for y in 0..self.h {
-            let rs = String::from_utf8(d[y as usize].clone()).expect("valid string");
+            let rs = String::from_utf8(d[y as usize * self.w as usize..(y as usize + 1) * self.w as usize].to_vec()).expect("valid string");
             s += &rs;
             s += "\n";
         }

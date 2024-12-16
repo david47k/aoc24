@@ -19,7 +19,7 @@ pub fn day15(input: &String) -> (usize, usize) {
 		}
 		data.push(line.unwrap().to_string());
 	}
-	let bdata: Vec<Vec<u8>> = data.iter().map(|s| s.bytes().collect_vec()).collect_vec();
+	let bdata: Vec<u8> = data.iter().map(|s| s.bytes().collect_vec()).flatten().collect_vec();
 	let mut grid = Grid { w: w as isize, h: data.len() as isize, data: bdata.clone() };
 
 	// read in movement data
@@ -69,23 +69,20 @@ pub fn day15(input: &String) -> (usize, usize) {
 	// part two
 	// ddoouubbllee  wwiiddtthh
 	// read in level data
-	let mut ndata: Vec<Vec<u8>> = vec![];
-	for r in bdata.iter() {
-		let mut nr: Vec<u8> = vec![];
-		for b in r.iter() {
-			let dw = match b {
-				b'.' => b"..",
-				b'O' => b"[]",
-				b'@' => b"@.",
-				b'#' => b"##",
-				_ => panic!("unexpected input byte"),
-			};
-			nr.push(dw[0]);
-			nr.push(dw[1]);
-		}
-		ndata.push(nr);
+	let mut ndata: Vec<u8> = vec![];
+	for b in bdata.iter() {
+		let dw = match b {
+			b'.' => b"..",
+			b'O' => b"[]",
+			b'@' => b"@.",
+			b'#' => b"##",
+			_ => panic!("unexpected input byte"),
+		};
+		ndata.push(dw[0]);
+		ndata.push(dw[1]);
 	}
-	let mut grid = Grid { w: ndata[0].len() as isize, h: ndata.len() as isize, data: ndata };
+
+	let mut grid = Grid { w: w as isize * 2, h: ndata.len() as isize, data: ndata };
 	println!("\npart two\n");
 	println!("grid w: {}, h: {}, initial position:\n{}", grid.w, grid.h, grid.to_string());
 
