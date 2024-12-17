@@ -11,21 +11,19 @@ pub fn day16(input: &String) -> (usize, usize) {
 	println!("level w: {}, h: {}", level.w, level.h);
 	println!("{}", level.to_string());
 	let soln = find_best_path(&level, 1_000_000);
-	let mut best_tiles = BTreeSet::<Vector>::new();
-	if soln.len() > 0 {
-		println!("{} solutions found", soln.len());
-		for s in soln {
-			let ss: String = s.path.iter().map(|m| m.to_string()).collect();
-			println!("solution : {}", ss);
-			best_score = s.score as usize;
-			for t in level.get_path_pts(&s.path) {
-				best_tiles.insert(t);
-			}
-		}
+	let mut best_tiles: usize = 0;
+	if let Some(sol) = soln {
+		println!("Solution found!");
+		let ss: String = sol.path.iter().map(|m| m.to_string()).collect();
+		println!("solution : {}", ss);
+
+		best_score = sol.score as usize;
+		best_tiles = sol.visited.len();
+
 		println!("best score: {}", best_score);
-		println!("best tiles: {}", best_tiles.len());
+		println!("best tiles: {}", best_tiles);
 	} else {
 		println!("no solution");
 	}
-	(best_score, best_tiles.len())
+	(best_score, best_tiles)
 }
