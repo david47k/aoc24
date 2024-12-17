@@ -79,13 +79,6 @@ impl Vector {
 }
 
 
-
-
-
-use crate::stackstack::{StackStack8,StackStack64};
-
-
-
 #[derive(Clone, Copy, PartialEq, Ord, PartialOrd, Eq)]
 pub struct VectorSm ( pub i8, pub i8 );
 impl VectorSm {

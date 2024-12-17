@@ -2,20 +2,18 @@
 //
 // solve.rs: solve a sokoban-style level
 
-use crate::level::{Level,CmpData};
-use crate::time::{get_time_ms};
+use crate::level::{Level};
 use crate::vector::{*};
 use crate::path2::{Move2,ShrunkPath,ALLMOVES2};
-use crate::sprite::Obj;
 
-use rayon::prelude::*;
-use std::rc::Rc;
+//use rayon::prelude::*;
+//use std::rc::Rc;
 use std::collections::{BTreeMap};
 use std::cmp::Ordering;
 use itertools::Itertools;
 use crate::pathnodemap::{PathMap};
 
-use bevy_tasks::{TaskPool,TaskPoolBuilder};
+use bevy_tasks::{TaskPool}; //,TaskPoolBuilder};
 
 pub fn task_splitter(pool: &TaskPool, spl_into: usize, from: &Vec::<PathMap>, func: impl Fn(&[PathMap], &mut Vec::<PathMap>) + Send + Copy + Sync) -> Vec::<PathMap> {
 	// break up vecs
@@ -185,8 +183,7 @@ struct NodeData {
 	pub pts: Vec<Vector>,
 }
 
-pub fn find_best_path(level: &Level, max_score: u64) -> Option<Solution> {
-	let max_depth = 1000;
+pub fn find_best_path(level: &Level, max_depth: u64) -> Option<Solution> {
 	// find path from start_pos to end_pos
 	// using score as path weight
 	// we will store how we get to each square:
@@ -227,17 +224,17 @@ pub fn find_best_path(level: &Level, max_score: u64) -> Option<Solution> {
 			}
 
 			// get directions -- vector, object, score
-			let mut maybes = ALLMOVES2.iter().map(|&m| (m, id.p.apply_dir(&m)));
-			let mut maybes = maybes.filter(|(m, p)| level.has_space_at(*p) );
-			let mut maybes = maybes.collect_vec();
-			let mut maybes = maybes.into_iter().map(|(m, p)| (m, p, data.s + ShrunkPath::calc_score(&m, &id.d)));                // move, pos, score
-			let mut maybes = maybes.collect_vec();
+			let maybes = ALLMOVES2.iter().map(|&m| (m, id.p.apply_dir(&m)));
+			let maybes = maybes.filter(|(_m, p)| level.has_space_at(*p) );
+			let maybes = maybes.collect_vec();
+			let maybes = maybes.into_iter().map(|(m, p)| (m, p, data.s + ShrunkPath::calc_score(&m, &id.d)));                // move, pos, score
+			let maybes = maybes.collect_vec();
 			// we now know mps: Move, Pos, Score
 
 			//println!("{} directions found", maybes.len());
 
 			// remove any from our list that have better contenders in nodes
-			maybes = maybes.into_iter().filter(|(m, p, s)| {
+			let maybes = maybes.into_iter().filter(|(m, p, s)| {
 				let key = NodeID { p: *p, d: *m };
 				if let Some(existing_data) = nodes.get_mut(&key) {
 					if *s < existing_data.s {

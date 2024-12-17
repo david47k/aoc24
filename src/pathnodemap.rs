@@ -71,52 +71,8 @@ impl PathMap {
 			key_moves: Vec::<KeyMove2>::with_capacity(128/(std::mem::size_of::<KeyMove2>())),
 		}
 	}
-	pub fn complete_solve_2(&self, base_level: &Level, maps_out: &mut Vec::<PathMap>) {		
-		let initial_pn = PathNode {
-			pt: Vector(self.level.cmp_data.deer_x as i32, self.level.cmp_data.deer_y as i32),
-			move_taken: None,
-			prev_node_idx: 0,
-		};
-		let mut nodes = Vec::<PathNode>::with_capacity(256/(std::mem::size_of::<PathNode>()));
-		nodes.push(initial_pn);
 
-		let mut tail_nodes = StackStack16::new(); 
-		let mut new_tail_nodes = StackStack16::new(); 	// somewhere to store new tail nodes
-		tail_nodes.push(0);
-		while tail_nodes.len() != 0 {					// check if map is complete
-			for idx in 0..tail_nodes.len() {							// for each tail node
-				let tnidx = tail_nodes.stack[idx]; 
-				let tnode = nodes[tnidx as usize];
-				let pt = tnode.pt;									
-				'loop_moves: for movedir in ALLMOVES.iter() {			// for each possible move
-					let npt = pt.add_dir(&movedir);						// what is in this direction? let's find out
-					if !base_level.vector_in_bounds(&npt) { continue; }
-					if base_level.get_obj_at_pt(&npt) != Obj::Wall {
-						// first check this point isn't already in our list!!!						
-						for n in &nodes {
-							if n.pt == npt { continue 'loop_moves; }		// This is a hot spot 9.88%
-						}
-
-						// yep, we can move here, make a new tail node
-						let pn = PathNode {
-							pt: npt.clone(),
-							move_taken: Some(movedir.as_move2()),
-							prev_node_idx: tnidx as u16,
-						};
-						new_tail_nodes.push(nodes.len() as u16);
-						nodes.push(pn);
-					}
-				}	
-			}
-	
-			// move new_tail_nodes to tail_nodes
-			tail_nodes.clone_from(&new_tail_nodes);
-			new_tail_nodes.clear();
-		}
-		// pnm -> new_by_applying_key_push(pnm, pm, km)
-	}
-
-	pub fn apply_key_push_2(&self, nodes: &Vec::<PathNode>, km: &KeyMove2) -> PathMap { 	// after we complete a map, we need to take a key move and start again	
+	pub fn _apply_key_push_2(&self, nodes: &Vec::<PathNode>, km: &KeyMove2) -> PathMap { 	// after we complete a map, we need to take a key move and start again	
 		let mut map_b = self.clone();
 				
 		// new deer point

@@ -34,7 +34,6 @@ impl Obj {
 			Obj::Wall => '#',
 			Obj::Start => 'S',
 			Obj::End => 'E',
-			_ => panic ! ("Invalid character"),
 		}
 	}
 }

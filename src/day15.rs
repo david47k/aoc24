@@ -3,7 +3,7 @@ use itertools::Itertools;
 //use std::collections::{*};
 use crate::grid::{*};
 use crate::vector::{*};
-use crate::path::{ALLMOVES,Move};
+use crate::path::{Move};
 
 pub fn day15(input: &String) -> (usize, usize) {
 	let line = &input[0..input.find(&['\n', '\r']).unwrap()];

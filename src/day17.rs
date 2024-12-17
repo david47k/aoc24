@@ -2,13 +2,14 @@ use itertools::Itertools;
 //use std::collections::{*};
 //use crate::grid::{*};
 //use crate::vector::{*};
+use crate::time::get_time_ms;
 
 #[derive(Debug)]
 struct Computer {
 	pub reg: [u64; 3],		// A, B, C
 	pub ip: usize,
 	pub program: Vec<u8>,
-	pub output: Vec<u64>,
+	pub output: Vec<u8>,
 }
 
 const REG_A: usize = 0;
@@ -29,10 +30,10 @@ impl Computer {
 		self.ip = 0;
 		self.output.clear();
 	}
-	pub fn step(&mut self) -> bool {		// return true if running, false if halted
+	pub fn step(&mut self) -> (bool,Option<u8>) { // return true if running, false if halted. Some if output
 		// are we halted?
 		if self.ip >= self.program.len() {
-			return false;
+			return (false, None);
 		}
 		let instruction = self.program[self.ip];
 		let operand = self.program[self.ip + 1];
@@ -40,9 +41,7 @@ impl Computer {
 		//println!("instruction {}, operand {}, at ip {}", instruction, operand, self.ip);
 		match instruction {
 			0 | 6 | 7 => { // adv: division, operand: combo, 0: output to A, 6: output to B, 7: output to C.
-				let n = self.reg[REG_A];
-				let d = 2_u32.pow(self.get_combo_value(operand) as u32);
-				let r = (n / d as u64);
+				let r = self.reg[REG_A] >> self.get_combo_value(operand) as u64;
 				let reg_num: usize = match instruction {
 					0 => REG_A,
 					6 => REG_B,
@@ -51,15 +50,13 @@ impl Computer {
 				};
 				self.reg[reg_num] = r;
 				self.ip += 2;
-				//println!("_dv: REG_A:{n} D:{d} R:{r}");
 			},
 			1 => { // bxl: bitwise xor, operand: literal
 				self.reg[REG_B] = self.reg[REG_B] ^ operand as u64;
 				self.ip += 2;
 			},
 			2 => { // bst: mod 8 store to B, operand: combo
-				let r = self.get_combo_value(operand) & 0x07;
-				self.reg[REG_B] = r;
+				self.reg[REG_B] = self.get_combo_value(operand) & 0x07;
 				self.ip += 2;
 			},
 			3 => { // jnz: jump. no ip increase. operand: literal
@@ -74,16 +71,17 @@ impl Computer {
 				self.ip += 2;
 			},
 			5 => { // out: output, operand: combo
-				let r = self.get_combo_value(operand) & 0x07;
+				let r = (self.get_combo_value(operand) & 0x07) as u8;
 				self.output.push(r);
 				self.ip += 2;
+				return (true, Some(r));
 			},
 			_ => {
 				panic!("Unknown instruction {}", instruction);
 			},
 		};
 
-		true
+		(true, None)
 	}
 	pub fn get_combo_value(&self, co: u8) -> u64 {
 		match co {
@@ -105,7 +103,6 @@ pub fn day17(input: &String) -> (usize, usize) {
 
 	// initialise computer
 	let program = caps[3..].iter().map(|&u| u as u8).collect_vec();
-	let program64 = program.iter().map(|&u| u as u64).collect_vec();
 	let mut c = Computer::new(program.clone());
 	c.reg[0] = caps[0];
 	c.reg[1] = caps[1];
@@ -114,11 +111,11 @@ pub fn day17(input: &String) -> (usize, usize) {
 	let mut running: bool = true;
 	let mut steps: usize = 0;
 	while running && steps < 1_000_000 {
-		running = c.step();
+		(running, _) = c.step();
 		steps += 1;
 	}
 
-	let mut part1_output: String = c.output.iter().map(|u| u.to_string() + ",").collect();
+	let part1_output: String = c.output.iter().map(|u| u.to_string() + ",").collect();
 	let part1_output = part1_output.trim_end_matches(",");
 	println!("output: {}", part1_output);
 
@@ -126,39 +123,51 @@ pub fn day17(input: &String) -> (usize, usize) {
 
 	// initialise computer
 
-
-	// step until halted
-	let mut running: bool = true;
-	let mut steps: u64 = 0;
 	let mut solution:  Option<u64> = None;
 	let mut c = Computer::new(program.clone());
-	let plen = program64.len();
+	let plen = program.len();
+	let mut t0 = get_time_ms();
+	let mut t1;
 
-	for initial_a in 0..100_000_000_000 {
+	println!("desired program: {:?}", c.program);
+
+	// try a lot of numbers
+	
+	let mut initial_a = 100_000_000_000;
+	loop {
+		initial_a += 1;
 		c.reset();
 		c.reg[0] = initial_a;
 		c.reg[1] = caps[1];
 		c.reg[2] = caps[2];
+		let mut opos = 0;
 
-		if initial_a % 10000000 == 0 {
-			println!("initial a: {}", initial_a);
-		}
-
-		while c.step() {
-			if c.output.len() > plen {
+		loop {
+			let (running, output) = c.step();
+			if output.is_some() {
+				if c.output.len() > plen || output.unwrap() != program[opos] {
+					break;
+				}
+				opos += 1;
+			}
+			if !running {
 				break;
 			}
 		}
-			// steps += 1;
-			// if steps == 1_000_000 {
-			// 	println!("stopped due to max steps");
-			// 	running = false;
-			// }
-			// if steps % 10000 == 0 {
-			// 	println!("steps: {}", steps);
-			// }
-		//}
-		if c.output.len() == program64.len() && c.output == program64 {
+
+		if initial_a % 100_000_000 == 0 {
+			println!("a: {}m", initial_a/1_000_000);
+			if initial_a % 100_000_000 == 0 {
+				t1 = get_time_ms();
+				println!("time: {:0.3}s", (t1 - t0) / 1000.0);
+				t0 = t1;				
+			}
+			let output: String = c.output.iter().map(|u| u.to_string() + ",").collect();
+			let output = output.trim_end_matches(",");
+			println!("output: {}", output);
+		}
+
+		if c.output.len() == plen && c.output == program {
 			solution = Some(initial_a);
 			break;
 		}

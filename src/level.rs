@@ -5,7 +5,7 @@
 
 use crate::path2::Move2;
 use std::convert::TryInto;
-use std::collections::HashMap;
+//use std::collections::HashMap;
 use std::string::String;
 
 use crate::vector::{Vector,VectorSm};
@@ -37,17 +37,6 @@ impl CmpData {
 }
 
 
-const X1VARS: [[Vector;3];8] = // only interested in the neighbours (not the opposite)
-[
-[Vector(0,0),Vector(0,1),Vector(1,0)],
-[Vector(0,0),Vector(1,0),Vector(0,1)],
-[Vector(0,1),Vector(0,0),Vector(1,1)],
-[Vector(0,1),Vector(1,1),Vector(0,0)],
-[Vector(1,0),Vector(0,0),Vector(1,1)],
-[Vector(1,0),Vector(1,1),Vector(0,0)],
-[Vector(1,1),Vector(0,1),Vector(1,0)],
-[Vector(1,1),Vector(1,0),Vector(0,1)],
-];
 
 #[derive(Clone,PartialEq)]
 pub struct LevelBitmap {
