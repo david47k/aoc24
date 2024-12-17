@@ -26,4 +26,12 @@ pub fn day16(input: &String) -> (usize, usize) {
 		println!("no solution");
 	}
 	(best_score, best_tiles)
+	// ex16b.txt
+	// best score: 11048
+	// best tiles: 64
+
+	// ex16.txt
+	// best score: 7036
+	// best tiles: 45
+
 }
