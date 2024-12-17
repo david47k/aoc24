@@ -24,6 +24,11 @@ impl Computer {
 			output: vec![],
 		}
 	}
+	pub fn reset(&mut self) {
+		self.reg = [0; 3];
+		self.ip = 0;
+		self.output.clear();
+	}
 	pub fn step(&mut self) -> bool {		// return true if running, false if halted
 		// are we halted?
 		if self.ip >= self.program.len() {
@@ -32,7 +37,7 @@ impl Computer {
 		let instruction = self.program[self.ip];
 		let operand = self.program[self.ip + 1];
 
-		println!("instruction {}, operand {}, at ip {}", instruction, operand, self.ip);
+		//println!("instruction {}, operand {}, at ip {}", instruction, operand, self.ip);
 		match instruction {
 			0 | 6 | 7 => { // adv: division, operand: combo, 0: output to A, 6: output to B, 7: output to C.
 				let n = self.reg[REG_A];
@@ -46,7 +51,7 @@ impl Computer {
 				};
 				self.reg[reg_num] = r;
 				self.ip += 2;
-				println!("_dv: REG_A:{n} D:{d} R:{r}");
+				//println!("_dv: REG_A:{n} D:{d} R:{r}");
 			},
 			1 => { // bxl: bitwise xor, operand: literal
 				self.reg[REG_B] = self.reg[REG_B] ^ operand as u64;
@@ -100,21 +105,70 @@ pub fn day17(input: &String) -> (usize, usize) {
 
 	// initialise computer
 	let program = caps[3..].iter().map(|&u| u as u8).collect_vec();
-	let mut c = Computer::new(program);
+	let program64 = program.iter().map(|&u| u as u64).collect_vec();
+	let mut c = Computer::new(program.clone());
 	c.reg[0] = caps[0];
 	c.reg[1] = caps[1];
 	c.reg[2] = caps[2];
 
-	// step until halted
 	let mut running: bool = true;
-	while running {
+	let mut steps: usize = 0;
+	while running && steps < 1_000_000 {
 		running = c.step();
-		println!("ip: {}", c.ip);
-		println!("output: {:?}", c.output);
+		steps += 1;
 	}
 
-	let mut final_output: String = c.output.iter().map(|u| u.to_string() + ",").collect();
-	let final_output = final_output.trim_end_matches(",");
-	println!("output: {}", final_output);
+	let mut part1_output: String = c.output.iter().map(|u| u.to_string() + ",").collect();
+	let part1_output = part1_output.trim_end_matches(",");
+	println!("output: {}", part1_output);
+
+	println!("--- part two ---");
+
+	// initialise computer
+
+
+	// step until halted
+	let mut running: bool = true;
+	let mut steps: u64 = 0;
+	let mut solution:  Option<u64> = None;
+	let mut c = Computer::new(program.clone());
+	let plen = program64.len();
+
+	for initial_a in 0..100_000_000_000 {
+		c.reset();
+		c.reg[0] = initial_a;
+		c.reg[1] = caps[1];
+		c.reg[2] = caps[2];
+
+		if initial_a % 10000000 == 0 {
+			println!("initial a: {}", initial_a);
+		}
+
+		while c.step() {
+			if c.output.len() > plen {
+				break;
+			}
+		}
+			// steps += 1;
+			// if steps == 1_000_000 {
+			// 	println!("stopped due to max steps");
+			// 	running = false;
+			// }
+			// if steps % 10000 == 0 {
+			// 	println!("steps: {}", steps);
+			// }
+		//}
+		if c.output.len() == program64.len() && c.output == program64 {
+			solution = Some(initial_a);
+			break;
+		}
+	}
+
+	if solution.is_some() {
+		println!("part 2 solution: {}", solution.unwrap());
+	} else {
+		println!("no solution");
+	}
+
 	(0,0)
 }
