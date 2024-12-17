@@ -2,6 +2,7 @@ use itertools::Itertools;
 //use std::collections::{*};
 use crate::vector::{*};
 use crate::grid::{*};
+use crate::path::ALLMOVES;
 
 pub fn day12(input: &String) -> (usize,usize) {
     // read into grid

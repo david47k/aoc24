@@ -1,9 +1,9 @@
 use std::collections::VecDeque;
-use std::hint::black_box;
 use itertools::Itertools;
 //use std::collections::{*};
 use crate::grid::{*};
 use crate::vector::{*};
+use crate::path::{ALLMOVES,Move};
 
 pub fn day15(input: &String) -> (usize, usize) {
 	let line = &input[0..input.find(&['\n', '\r']).unwrap()];
@@ -20,7 +20,7 @@ pub fn day15(input: &String) -> (usize, usize) {
 		data.push(line.unwrap().to_string());
 	}
 	let bdata: Vec<u8> = data.iter().map(|s| s.bytes().collect_vec()).flatten().collect_vec();
-	let mut grid = Grid { w: w as isize, h: data.len() as isize, data: bdata.clone() };
+	let mut grid = Grid { w: w as i32, h: data.len() as i32, data: bdata.clone() };
 
 	// read in movement data
 	let mut movements: Vec<String> = vec![];
@@ -61,7 +61,7 @@ pub fn day15(input: &String) -> (usize, usize) {
 
 	println!("\nfinal position:\n{}", grid.to_string());
 	// calculate GPS score -- sum of each box's (100*by+bx)
-	let score: isize = grid.find(b'O').iter().map(|v| v.0 + v.1 * 100).sum();
+	let score: i32 = grid.find(b'O').iter().map(|v| v.0 + v.1 * 100).sum();
 	println!("part one score: {}", score);
 
 
@@ -82,7 +82,7 @@ pub fn day15(input: &String) -> (usize, usize) {
 		ndata.push(dw[1]);
 	}
 
-	let mut grid = Grid { w: w as isize * 2, h: ndata.len() as isize, data: ndata };
+	let mut grid = Grid { w: w as i32 * 2, h: ndata.len() as i32, data: ndata };
 	println!("\npart two\n");
 	println!("grid w: {}, h: {}, initial position:\n{}", grid.w, grid.h, grid.to_string());
 
@@ -95,7 +95,7 @@ pub fn day15(input: &String) -> (usize, usize) {
 	// make move
 	for (i,&m) in moves.iter().enumerate() {
 		println!("\nafter {i} moves:\n{}", grid.to_string_with_pt(&robot_xy));
-		let mut nxy = robot_xy.add_dir(&m);
+		let nxy = robot_xy.add_dir(&m);
 		let nobj = grid.get(&nxy);
 		if nobj.is_none() || nobj.unwrap() == b'#' {
 			print!("{} failed. ", m.to_string());
@@ -134,7 +134,7 @@ pub fn day15(input: &String) -> (usize, usize) {
 	println!("\nfinal position:\n{}", grid.to_string_with_pt(&robot_xy));
 	// calculate GPS score -- sum of each box's (100*by+bx)
 	// NEAREST edge...
-	let score2: isize = grid.find(b'[').iter().map(|v| (v.0) + v.1 * 100).sum();
+	let score2: i64 = grid.find(b'[').iter().map(|v| (v.0 as i64) + v.1  as i64 * 100_i64 ).sum();
 	println!("part one score: {}", score);
 	println!("part two score: {}", score2);
 

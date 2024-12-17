@@ -1,6 +1,7 @@
 use crate::grid::{*};
 use itertools::Itertools;
 use crate::vector::{*};
+use crate::path::ALLMOVES;
 use std::collections::{*};
 
 pub fn day10(input: &String) -> (usize,usize) {

@@ -6,12 +6,14 @@
 // A point and a direction can both be implemented as a Vector
 
 use crate::grid::Grid;
+use crate::path::Move;
+use crate::path2::Move2;
 
 #[derive(Clone, Copy, PartialEq, Ord, PartialOrd, Eq, Debug)]
-pub struct Vector (pub isize, pub isize);
+pub struct Vector (pub i32, pub i32);
 
 impl Vector {
-    pub fn new(x: isize, y: isize) -> Vector {
+    pub fn new(x: i32, y: i32) -> Vector {
         Self(x,y)
     }
     pub fn add(&self, dir: &Vector) -> Self {
@@ -23,7 +25,7 @@ impl Vector {
     pub fn double(&self) -> Self {
         Self(self.0 * 2, self.1 * 2)
     }
-    pub fn mul(&self, n: isize) -> Self {
+    pub fn mul(&self, n: i32) -> Self {
         Self(self.0 * n, self.1 * n)
     }
     pub fn rotr(&self) -> Self {
@@ -32,25 +34,27 @@ impl Vector {
     pub fn rotl(&self) -> Self {
         Self(-self.1, self.0)
     }
-    pub fn scale_by(&self, n: isize) -> Self {
+    pub fn scale_by(&self, n: i32) -> Self {
         Self(self.0 * n, self.1 * n)
     }
     pub fn eq(&self, a: &Vector) -> bool {
         self.0 == a.0 && self.1 == a.1
     }
-}
-
-// non-js
-impl Vector {
     pub fn add_dir(&self, dir: &Move) -> Self {
-        //let d = *dir as i32; //1, 2, 4, 8
-        //Self(self.0+((d==1) as isize)-((d==3) as isize),self.1-((d==0) as isize)+((d==2) as isize))
-        		match dir {
-                    Move::Up    => Self( self.0,   self.1-1 ),
-                    Move::Right => Self( self.0+1, self.1   ),
-                    Move::Down  => Self( self.0,   self.1+1 ),
-                    Move::Left  => Self( self.0-1, self.1   ),
-                }
+        match dir {
+            Move::Up    => Self( self.0,   self.1-1 ),
+            Move::Right => Self( self.0+1, self.1   ),
+            Move::Down  => Self( self.0,   self.1+1 ),
+            Move::Left  => Self( self.0-1, self.1   ),
+        }
+    }
+    pub fn apply_dir(&self, dir: &Move2) -> Self {
+        match dir {
+            Move2::Up    => Self( self.0,   self.1-1 ),
+            Move2::Right => Self( self.0+1, self.1   ),
+            Move2::Down  => Self( self.0,   self.1+1 ),
+            Move2::Left  => Self( self.0-1, self.1   ),
+        }
     }
     pub fn add_dir2(&self, dir: &Move) -> Self {
         match dir {
@@ -75,67 +79,109 @@ impl Vector {
 }
 
 
-#[derive(Clone, Copy, PartialEq, Debug)]
-#[repr(u8)]
-pub enum Move { Up=1, Right=2, Down=4, Left=8 }
-pub const DIR_U: u8 = 1;
-pub const DIR_R: u8 = 2;
-pub const DIR_D: u8 = 4;
-pub const DIR_L: u8 = 8;
 
-impl Move {
-    pub fn u(&self) -> u8 {
-        *self as u8
+
+
+use crate::stackstack::{StackStack8,StackStack64};
+
+
+
+#[derive(Clone, Copy, PartialEq, Ord, PartialOrd, Eq)]
+pub struct VectorSm ( pub i8, pub i8 );
+impl VectorSm {
+    pub fn fromv(v: &Vector) -> Self {
+        Self ( v.0 as i8, v.1 as i8 )
     }
-    pub fn to_vector(&self) -> Vector {
-        match self {
-            Move::Up    => Vector( 0, -1 ),
-            Move::Right => Vector( 1,  0 ),
-            Move::Down  => Vector( 0,  1 ),
-            Move::Left  => Vector(-1,  0 ),
+    pub fn intov(&self) -> Vector {
+        Vector(self.0 as i32, self.1 as i32)
+    }
+    pub fn new(x: i8, y: i8) -> Self {
+        Self (x,y)
+    }
+    pub fn add(&self, dir: &Self) -> Self {
+        Self (self.0 + dir.0, self.1 + dir.1)
+    }
+    pub fn double(&self) -> Self {
+        Self (self.0 * 2, self.1 * 2)
+    }
+    pub fn mul(&self, n: i8) -> Self {
+        Self(self.0 * n, self.1 * n)
+    }
+    pub fn rotr(&self) -> Self {
+        Self(self.1, -self.0)
+    }
+    pub fn rotl(&self) -> Self {
+        Self(-self.1, self.0)
+    }
+    pub fn add_dir(&self, dir: &Move) -> Self {
+        match dir {
+            Move::Up    => Self( self.0,   self.1-1 ),
+            Move::Right => Self( self.0+1, self.1   ),
+            Move::Down  => Self( self.0,   self.1+1 ),
+            Move::Left  => Self( self.0-1, self.1   ),
         }
+    }
+    pub fn add_dir2(&self, dir: &Move) -> Self {
+        match dir {
+            Move::Up    => Self( self.0,   self.1-2 ),
+            Move::Right => Self( self.0+2, self.1   ),
+            Move::Down  => Self( self.0,   self.1+2 ),
+            Move::Left  => Self( self.0-2, self.1   ),
+        }
+    }
+    pub fn to_index(&self, width: u16) -> usize {
+        width as usize * (self.1 as usize) + (self.0 as usize)
+    }
+    pub fn to_usize(&self) -> (usize,usize) {
+        (self.0 as usize, self.1 as usize)
     }
     pub fn to_string(&self) -> String {
-        match self {
-            Move::Up    => String::from("U"),
-            Move::Right => String::from("R"),
-            Move::Down  => String::from("D"),
-            Move::Left  => String::from("L"),
-        }
-    }
-    pub fn from_u8_unchecked(n: u8) -> Move {
-        if n==1 { Move::Up }
-        else if n==2 { Move::Right }
-        else if n==4 { Move::Down }
-        else if n==8 { Move::Left }
-        else { panic!("unexpected move value"); }
-    }
-    pub fn from_u8(n: u8) -> Option<Move> {
-        match n {
-            1 => Some(Move::Up),
-            2 => Some(Move::Right),
-            4 => Some(Move::Down),
-            8 => Some(Move::Left),
-            _ => None,
-        }
-    }
-    pub fn reverse(&self) -> Move {
-        match self {
-            Move::Up	=> Move::Down,
-            Move::Left	=> Move::Right,
-            Move::Right	=> Move::Left,
-            Move::Down	=> Move::Up,
-        }
-    }
-    pub fn from_char_unchecked(c: char) -> Move {
-        match c {
-            '^'	=> Move::Up,
-            '>' => Move::Right,
-            'v' => Move::Down,
-            '<' => Move::Left,
-            _   => panic!("unexpected move value"),
-        }
+        format!("({},{})",self.0,self.1)
     }
 }
 
-pub const ALLMOVES: [Move; 4] = [ Move::Up, Move::Right, Move::Down, Move::Left ];
+
+
+
+// SuperShrunkPath stores part of the path as an index to existing path strings... thus allowing us to shorten the path data due to reuse... it'll use a lot more cpu though, to find matching path strings
+// Once we get more than 64 moves, we can store the original moves as a 'prefix' index... 64 moves is 128 bits, plus we get reduction in mem usage as there will be lots of repeats
+
+pub struct SuperPrefix {
+    data: Vec<u128>,
+}
+
+impl SuperPrefix {
+    pub fn new() -> Self {
+        Self {
+            data: Vec::new(),
+        }
+    }
+    pub fn get_by_index(&mut self, i: u32) -> Option<u128> {
+        if i as usize >= self.len() {
+            return None;
+        }
+        return Some(self.data[i as usize]);
+    }
+    pub fn add_unchecked(&mut self, d: u128) -> u32 {
+        let i = self.data.len();
+        self.data.insert(i, d);		// thread safe version, but can push data around a bit
+        return i as u32;			// not properly checked
+    }
+    pub fn add(&mut self, d: u128) -> u32 {
+        // basic linear search ugh
+        for idx in 0..self.data.len() {
+            if self.data[idx] == d {
+                return idx as u32;
+            }
+        }
+
+        // we couldn't find it, add it
+        let i = self.data.len();
+        self.data.insert(i, d);		// thread safe version, but can push data around a bit
+        return i as u32;			// not properly checked
+    }
+    pub fn len(&self) -> usize {
+        self.data.len()
+    }
+}
+

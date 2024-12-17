@@ -69,7 +69,7 @@ pub fn day14(input: &String) -> (usize, usize) {
 	let mut p2_result = 0_usize;
 
 	for t in 1..10000 {
-		let mut grid = Grid::new_with(w, h, b'.');
+		let mut grid = Grid::new_with(w as i32, h as i32, b'.');
 		let mut moved_robots = robots.clone();
 		for i in 0..robot_count {
 			let r = &robots[i];

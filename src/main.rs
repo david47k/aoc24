@@ -29,6 +29,15 @@ pub mod day23;
 pub mod day24;
 pub mod day25;
 pub mod time;
+pub mod level;
+pub mod defs;
+pub mod pathnodemap;
+pub mod solve;
+pub mod stackstack;
+pub mod sprite;
+mod path;
+mod path2;
+mod pathtrait;
 
 fn main() {
     println!("Advent of Code 2024");

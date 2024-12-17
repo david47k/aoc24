@@ -2,8 +2,8 @@ use crate::vector::Vector;
 use itertools::Itertools;
 
 pub struct Grid {
-    pub w: isize,
-    pub h: isize,
+    pub w: i32,
+    pub h: i32,
     pub data: Vec<u8>,
 }
 
@@ -20,14 +20,14 @@ pub const NDIRS: [Vector; 8] = [ Vector(0,-1), Vector(1,-1), Vector(1,0), Vector
 Vector(0,1), Vector(-1,1), Vector(-1,0), Vector(-1,-1) ];
 
 impl Grid {
-    pub fn new(w: isize, h: isize) -> Self {
+    pub fn new(w: i32, h: i32) -> Self {
         Self {
             w,
             h,
             data: vec![b'.'; w as usize * h as usize],
         }
     }
-    pub fn new_with(w: isize, h: isize, c: u8) -> Self {
+    pub fn new_with(w: i32, h: i32, c: u8) -> Self {
         Self {
             w,
             h,
@@ -38,8 +38,8 @@ impl Grid {
         let rows = s.lines().collect::<Vec<&str>>();
         let data: Vec<u8> = rows.iter().map(|r| r.bytes().collect::<Vec<u8>>()).flatten().collect();
         Self {
-            h: rows.len() as isize,
-            w: rows[0].len() as isize,
+            h: rows.len() as i32,
+            w: rows[0].len() as i32,
             data,
         }
     }
