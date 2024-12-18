@@ -449,7 +449,7 @@ impl Level {
 		s
 	}
 	pub fn has_space_at(&self, v: Vector) -> bool {
-		!self.wall_bmp.get_v(v)
+		!(!self.vector_in_bounds(&v) || self.wall_bmp.get_v(v))
 	}
 	pub fn get_path_pts(&self, path: &Vec<Move2>) -> Vec<Vector> {
 		let mut pos = self.start_pos.clone();
