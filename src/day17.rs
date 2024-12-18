@@ -2,7 +2,6 @@ use itertools::Itertools;
 //use std::collections::{*};
 //use crate::grid::{*};
 //use crate::vector::{*};
-use crate::time::get_time_ms;
 
 #[derive(Debug)]
 struct Computer {
@@ -126,47 +125,53 @@ pub fn day17(input: &String) -> (usize, usize) {
 	let mut solution:  Option<u64> = None;
 	let mut c = Computer::new(program.clone());
 	let plen = program.len();
-	let mut t0 = get_time_ms();
-	let mut t1;
 
 	println!("desired program: {:?}", c.program);
 
-	// try a lot of numbers
+	// after actually looking at the program
+	// we need to build A 3 bits at a time
+	let mut a_components = [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
 	
-	let mut initial_a = 100_000_000_000;
+	fn build_a(components: &[u8;16]) -> u64 {
+		let mut a: u64 = 0;
+		for i in 0..16 {
+			//let j = 16 - i;
+			a <<= 3;
+			a |= components[i] as u64;
+		}
+		a
+	}
+	
+	let mut n = 0;
 	loop {
-		initial_a += 1;
+		let initial_a = build_a(&a_components);
 		c.reset();
 		c.reg[0] = initial_a;
 		c.reg[1] = caps[1];
 		c.reg[2] = caps[2];
-		let mut opos = 0;
 
 		loop {
 			let (running, output) = c.step();
 			if output.is_some() {
-				if c.output.len() > plen || output.unwrap() != program[opos] {
+				if c.output.len() > plen {
 					break;
 				}
-				opos += 1;
 			}
 			if !running {
 				break;
 			}
 		}
+		println!("desired program: {:?}", c.program);
+		println!("a:               {:?}", a_components);		
+		println!("output:          {:?}", c.output);
 
-		if initial_a % 100_000_000 == 0 {
-			println!("a: {}m", initial_a/1_000_000);
-			if initial_a % 100_000_000 == 0 {
-				t1 = get_time_ms();
-				println!("time: {:0.3}s", (t1 - t0) / 1000.0);
-				t0 = t1;				
-			}
-			let output: String = c.output.iter().map(|u| u.to_string() + ",").collect();
-			let output = output.trim_end_matches(",");
-			println!("output: {}", output);
+		if c.output[15-n] == program[15-n] {
+			println!("MATCH at {}", 15-n);
+			n += 1;
+		} else {
+			a_components[n] += 1;
 		}
-
+		
 		if c.output.len() == plen && c.output == program {
 			solution = Some(initial_a);
 			break;
