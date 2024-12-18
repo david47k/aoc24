@@ -1,4 +1,4 @@
-pub fn day05(input: &String) -> (usize,usize) {
+pub fn day05(input: &String) -> (String,String) {
     // split input into rules and updates
 
     let split_point = input.find("\n\n").expect("double newline");
@@ -69,5 +69,5 @@ pub fn day05(input: &String) -> (usize,usize) {
 
     println!("part two sum: {sum2}");
 
-    (sum, sum2)
+    (sum.to_string(), sum2.to_string())
 }

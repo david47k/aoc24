@@ -4,7 +4,7 @@ use crate::vector::{*};
 use crate::grid::{*};
 use crate::path::ALLMOVES;
 
-pub fn day12(input: &String) -> (usize,usize) {
+pub fn day12(input: &String) -> (String,String) {
     // read into grid
     let grid = Grid::from_str(input);
     println!("grid w {0} h {1}", grid.w, grid.h);
@@ -38,7 +38,7 @@ pub fn day12(input: &String) -> (usize,usize) {
     }
     println!("Total price is {}", total_price);
     println!("Total discounted price is {}", total_discount_price);
-    (total_price,total_discount_price)
+    (total_price.to_string(), total_discount_price.to_string())
 }
 
 fn count_corners(grid: &Grid, crop: u8, this_region: &Vec<Vector>) -> usize {

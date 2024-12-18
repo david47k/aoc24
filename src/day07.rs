@@ -1,4 +1,4 @@
-pub fn day07(input: &String) -> (usize,usize) {
+pub fn day07(input: &String) -> (String,String) {
     // missing operators puzzle
 
     let rows = input.lines().collect::<Vec<&str>>();
@@ -110,5 +110,5 @@ pub fn day07(input: &String) -> (usize,usize) {
     let valid_sum2: usize = valid_data.iter().map(|r| r[0]).sum();
     println!("part two sum: {valid_sum2}");
 
-    (valid_sum1, valid_sum2)
+    (valid_sum1.to_string(), valid_sum2.to_string())
 }

@@ -5,7 +5,7 @@ use crate::grid::{*};
 use crate::vector::{*};
 use crate::path::{Move};
 
-pub fn day15(input: &String) -> (usize, usize) {
+pub fn day15(input: &String) -> (String, String) {
 	let line = &input[0..input.find(&['\n', '\r']).unwrap()];
 	let w = line.len();
 	let mut data: Vec<String> = vec![];
@@ -138,7 +138,7 @@ pub fn day15(input: &String) -> (usize, usize) {
 	println!("part one score: {}", score);
 	println!("part two score: {}", score2);
 
-	(score as usize,score2 as usize)
+	(score.to_string(), score2.to_string())
 }
 
 fn push_boxes(grid: &mut Grid, xy: &Vector, m: Move) -> bool {	// returns true if move made, false if impossible

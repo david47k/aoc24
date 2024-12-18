@@ -1,4 +1,4 @@
-pub fn day01(input: &String) -> (usize,usize) {
+pub fn day01(input: &String) -> (String,String) {
     // split input by whitespace, and convert to unsigned integers
     let input: Vec<usize> = input.split_whitespace().map(|s| s.parse::<usize>().expect("Input should be unsigned integers")).collect();
 
@@ -53,5 +53,5 @@ pub fn day01(input: &String) -> (usize,usize) {
 
     // solution to part two
     println!("score: {score}");
-    (sum, score)
+    (sum.to_string(), score.to_string())
 }

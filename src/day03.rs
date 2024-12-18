@@ -1,4 +1,4 @@
-pub fn day03(input: &String) -> (usize,usize) {
+pub fn day03(input: &String) -> (String,String) {
     // this looks like a regex challenge first!
     // we'll extract the text group first (easier for debugging)
     // later we might extract the number groups
@@ -49,5 +49,5 @@ pub fn day03(input: &String) -> (usize,usize) {
     println!("part one sum: {sum}");
     println!("part two sum: {sum2}");
 
-    (sum, sum2)
+    (sum.to_string(), sum2.to_string())
 }

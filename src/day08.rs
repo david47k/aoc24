@@ -1,7 +1,7 @@
 use crate::grid::{*};
 use itertools::Itertools;
 
-pub fn day08(input: &String) -> (usize,usize) {
+pub fn day08(input: &String) -> (String,String) {
 
     // nodes are a-zA-Z0-9
     // antinodes are created in two directions from each pair of matching nodes\
@@ -90,5 +90,5 @@ pub fn day08(input: &String) -> (usize,usize) {
     println!("part two: unique antinodes: {}", antinodes.len());
     let result2 = antinodes.len();
 
-    (result1, result2)
+    (result1.to_string(), result2.to_string())
 }

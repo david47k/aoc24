@@ -2,7 +2,7 @@
 use crate::level::{*};
 use crate::solve::{*};
 
-pub fn day16(input: &String) -> (usize, usize) {
+pub fn day16(input: &String) -> (String, String) {
 	let level = Level::from_str(input).expect("valid level");
 	let mut best_score: usize = 0;
 	println!("level w: {}, h: {}", level.w, level.h);
@@ -22,7 +22,7 @@ pub fn day16(input: &String) -> (usize, usize) {
 	} else {
 		println!("no solution");
 	}
-	(best_score, best_tiles)
+	(best_score.to_string(), best_tiles.to_string())
 	// ex16b.txt
 	// best score: 11048
 	// best tiles: 64

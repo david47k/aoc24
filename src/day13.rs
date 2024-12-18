@@ -15,7 +15,7 @@ struct Combo {
     b_count: usize,
     cost: usize,
 }
-pub fn day13(input: &String) -> (usize,usize) {
+pub fn day13(input: &String) -> (String,String) {
     let mut total_cost: usize = 0;
     let input = input.lines().collect_vec();
     let machine_count = (input.len()+1)/ 4;
@@ -67,7 +67,7 @@ pub fn day13(input: &String) -> (usize,usize) {
     for (i,m) in machines.iter().enumerate() {
         // can't brute force for part two :)
         // consider the direction each button makes as a line.
-        // there are only two possibilities for the lines: line a from (0,0), and line b via (tx,ty) (and vice-versa).
+        // there are only two possibilities for the lines: line a from ("no result".to_string(), "no result".to_string()), and line b via (tx,ty) (and vice-versa).
         // the solution to the problem will be the same regardless, as the lines will have the same length to reach
         // the intersection point.
         //
@@ -105,5 +105,5 @@ pub fn day13(input: &String) -> (usize,usize) {
 
     println!("part one total cost: {total_cost}");
     println!("part two total cost: {total_cost_two}");
-    (total_cost, total_cost_two)
+    (total_cost.to_string(), total_cost_two.to_string())
 }

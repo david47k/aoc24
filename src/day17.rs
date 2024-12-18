@@ -40,7 +40,7 @@ impl Computer {
 		//println!("instruction {}, operand {}, at ip {}", instruction, operand, self.ip);
 		match instruction {
 			0 | 6 | 7 => { // adv: division, operand: combo, 0: output to A, 6: output to B, 7: output to C.
-				let r = self.reg[REG_A] >> self.get_combo_value(operand) as u64;
+				let r = self.reg[REG_A] >> self.get_combo_value(operand);
 				let reg_num: usize = match instruction {
 					0 => REG_A,
 					6 => REG_B,
@@ -94,7 +94,7 @@ impl Computer {
 
 }
 
-pub fn day17(input: &String) -> (usize, usize) {
+pub fn day17(input: &String) -> (String, String) {
 	// read in input
 	let re = regex::Regex::new(r"(-?\d+)").expect("valid regex");
 	let caps: Vec<u64> = re.find_iter(input).map(|m| m.as_str().parse::<u64>().unwrap()).collect_vec();
@@ -122,9 +122,8 @@ pub fn day17(input: &String) -> (usize, usize) {
 
 	// initialise computer
 
-	let mut solution:  Option<u64> = None;
+	let solution: Option<u64>;
 	let mut c = Computer::new(program.clone());
-	let plen = program.len();
 
 	println!("desired program: {:?}", c.program);
 
@@ -153,7 +152,7 @@ pub fn day17(input: &String) -> (usize, usize) {
 		loop {
 			let (running, output) = c.step();
 			if output.is_some() {
-				if c.output.len() > plen {
+				if c.output.len() > program.len() {
 					break;
 				}
 			}
@@ -172,17 +171,19 @@ pub fn day17(input: &String) -> (usize, usize) {
 			a_components[n] += 1;
 		}
 		
-		if c.output.len() == plen && c.output == program {
+		if c.output.len() == program.len() && c.output == program {
 			solution = Some(initial_a);
 			break;
 		}
 	}
 
+	let mut part2_result = "".to_string();
 	if solution.is_some() {
 		println!("part 2 solution: {}", solution.unwrap());
+		part2_result = solution.unwrap().to_string();
 	} else {
 		println!("no solution");
 	}
 
-	(0,0)
+	(part1_output.to_string(), part2_result.to_string())
 }

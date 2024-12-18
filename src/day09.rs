@@ -8,7 +8,7 @@ struct Segment {
     size: usize,        // Size of this segment in blocks
 }
 
-pub fn day09(input: &String) -> (usize,usize) {
+pub fn day09(input: &String) -> (String,String) {
     // first read as numbers
     let input: Vec<usize> = input.trim_end().chars().map(|s| s.to_string().parse::<usize>().expect("number")).collect_vec();
 
@@ -125,5 +125,5 @@ pub fn day09(input: &String) -> (usize,usize) {
     }
     println!("part two checksum: {checksum}");
 
-    (checksum1, checksum)
+    (checksum1.to_string(), checksum.to_string())
 }

@@ -213,7 +213,7 @@ impl Level {
 			self.data[(pt.0 as usize) + (pt.1 as usize) * (self.w as usize)] = obj;
 		}
 	}	
-	fn get_vslice(&self, x: isize, y0: isize, y1: isize) -> Vec::<Obj> {
+	fn _get_vslice(&self, x: isize, y0: isize, y1: isize) -> Vec::<Obj> {
 		let mut rv = Vec::<Obj>::new();
 		for i in y0..y1 {
 			let v = Vector(x as i32,i as i32);
@@ -225,7 +225,7 @@ impl Level {
 		}
 		return rv;
 	}
-	fn get_hslice(&self, x0: isize, x1: isize, y: isize) -> Vec::<Obj> {
+	fn _get_hslice(&self, x0: isize, x1: isize, y: isize) -> Vec::<Obj> {
 		let mut rv = Vec::<Obj>::new();
 		for i in x0..x1 {
 			let v = Vector(i as i32,y as i32);

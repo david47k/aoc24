@@ -44,7 +44,7 @@ fn calculate_count(map: &BTreeMap<Num, Node>) -> usize {
     map.iter().map(|(_, n)| n.count).sum::<usize>()
 }
 
-pub fn day11(input: &String) -> (usize,usize) {
+pub fn day11(input: &String) -> (String,String) {
     // read in numbers
     let input: Vec<usize> = input.trim_end().split_whitespace().map(|s| s.parse::<usize>().expect("number")).collect_vec();
 
@@ -85,7 +85,7 @@ pub fn day11(input: &String) -> (usize,usize) {
     println!("time: {0:4.3}s", (crate::time::get_time_ms() - t0)/1000_f64);
     println!("part one: {part1_count}");
     println!("part two: {part2_count}");
-    (part1_count, part2_count)
+    (part1_count.to_string(), part2_count.to_string())
 }
 
 fn count_digits(n: usize) -> (usize, bool) {

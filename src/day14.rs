@@ -10,7 +10,7 @@ struct Robot {
 	v: (isize, isize),
 }
 
-pub fn day14(input: &String) -> (usize, usize) {
+pub fn day14(input: &String) -> (String, String) {
 	// read in input to get robot position and velocities
 	// NOTE: we've modified input to include the grid size on the first line
 	let re = regex::Regex::new(r"(-?\d+)").expect("valid regex");
@@ -89,5 +89,5 @@ pub fn day14(input: &String) -> (usize, usize) {
 		}
 	}
 
-	(p1_result, p2_result)
+	(p1_result.to_string(), p2_result.to_string())
 }

@@ -6,10 +6,6 @@ use crate::vector::{Vector, VectorSm};
 #[derive(PartialOrd, Eq, Ord, Clone, Copy, PartialEq, Debug)]
 #[repr(u8)]
 pub enum Move2 { Up=0, Right=1, Down=2, Left=3 }
-pub const DIR2_U: u8 = 0;
-pub const DIR2_R: u8 = 1;
-pub const DIR2_D: u8 = 2;
-pub const DIR2_L: u8 = 3;
 
 pub const ALLMOVES2: [Move2; 4] = [ Move2::Up, Move2::Right, Move2::Down, Move2::Left ];
 
@@ -92,7 +88,7 @@ pub struct ShrunkPath {
 }
 
 
-
+#[allow(dead_code)]
 impl ShrunkPath {
     pub fn new() -> Self {
         Self {
