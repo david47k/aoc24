@@ -88,11 +88,11 @@ fn main() {
             18 => day18::day18(&input),
             19 => day19::day19(&input),
             20 => day20::day20(&input),
-            21 => day20::day20(&input),
-            22 => day20::day20(&input),
-            23 => day20::day20(&input),
-            24 => day20::day20(&input),
-            25 => day20::day20(&input),
+            21 => day21::day21(&input),
+            22 => day22::day22(&input),
+            23 => day23::day23(&input),
+            24 => day24::day24(&input),
+            25 => day25::day25(&input),
             _  => { println!("Unknown day!"); ("no result".to_string(), "no result".to_string()) }
         };
         if test {
@@ -125,6 +125,12 @@ fn gen_test_data() -> Vec<(usize,String,(String, String))> {
         ( 12,   "ex12c.txt",  ("1930", "1206") ),
         ( 13,   "ex13.txt",   ("480", "875318608908") ),
         ( 14,   "ex14.txt",   ("12", "0") ),
+        ( 15,   "ex15.txt",   ("2028", "1751") ),
+        ( 15,   "ex15b.txt",  ("10092", "9021") ),
+        ( 15,   "ex15c.txt",  ("908", "618") ),
+        ( 16,   "ex16.txt",   ("7036", "45") ),
+        ( 16,   "ex16b.txt",  ("11048", "64") ),
+        ( 17,   "ex17b.txt",  ("5,7,3,0", "117440") ),
     ];
     d.into_iter().map(|(day,fname,(result1,result2))| (day,fname.to_string(),(result1.to_string(), result2.to_string()))).collect_vec()
 }

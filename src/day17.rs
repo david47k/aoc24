@@ -129,17 +129,17 @@ pub fn day17(input: &String) -> (String, String) {
 
 	// after actually looking at the program
 	// we need to build A 3 bits at a time
-	let mut a_components = [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
-	
-	fn build_a(components: &[u8;16]) -> u64 {
+	let plen = c.program.len();
+	let mut a_components = vec![0_u8; plen];
+
+	let build_a = |components: &[u8]| -> u64 {
 		let mut a: u64 = 0;
-		for i in 0..16 {
-			//let j = 16 - i;
+		for i in 0..plen {
 			a <<= 3;
 			a |= components[i] as u64;
 		}
 		a
-	}
+	};
 	
 	let mut n = 0;
 	loop {
@@ -164,8 +164,8 @@ pub fn day17(input: &String) -> (String, String) {
 		println!("a:               {:?}", a_components);		
 		println!("output:          {:?}", c.output);
 
-		if c.output[15-n] == program[15-n] {
-			println!("MATCH at {}", 15-n);
+		if c.output.len() == plen && c.output[plen-1-n] == program[plen-1-n] {
+			println!("MATCH at {}", plen-1-n);
 			n += 1;
 		} else {
 			a_components[n] += 1;

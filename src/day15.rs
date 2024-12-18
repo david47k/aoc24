@@ -82,7 +82,7 @@ pub fn day15(input: &String) -> (String, String) {
 		ndata.push(dw[1]);
 	}
 
-	let mut grid = Grid { w: w as i32 * 2, h: ndata.len() as i32, data: ndata };
+	let mut grid = Grid { w: w as i32 * 2, h: (ndata.len() / (w * 2)) as i32, data: ndata };
 	println!("\npart two\n");
 	println!("grid w: {}, h: {}, initial position:\n{}", grid.w, grid.h, grid.to_string());
 
