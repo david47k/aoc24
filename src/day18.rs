@@ -36,6 +36,35 @@ pub fn day18(input: &String) -> (String, String) {
 
 	println!("{:?}", soln);
 
+	println!("-- part two --");
+
+	let mut idx_min = count;
+	let mut idx_max = nums.len()/2;
+	let bmp_cache = level.wall_bmp.clone();
+
+	let mut idx = (idx_min + idx_max)/2;
+
+	// bisect
+	loop {
+		idx = (idx_min + idx_max)/2;
+		if idx == idx_min {
+			println!("found sweet spot min {} max {}", idx_min, idx_max);
+			idx = idx_max;
+			break;
+		}
+		print!("idx: {idx} ");
+		level.wall_bmp = bmp_cache.clone();
+		for fill_idx in count..=idx {
+			let v = Vector(nums[2*fill_idx], nums[2*fill_idx+1]);
+			level.wall_bmp.set_v(v);
+		}
+		let ok = find_any_path_18(&level, 10_000).is_some();
+		if ok { println!("ok"); idx_min = idx; }
+		else { println!("fail"); idx_max = idx; }
+	}
+
+	println!("idx {} has coords: {},{}", idx, nums[2*idx], nums[2*idx+1]);
+
 	("no result".to_string(), "no result".to_string())
 
 }
