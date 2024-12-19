@@ -35,10 +35,10 @@ pub mod level;
 pub mod defs;
 pub mod solve;
 pub mod stackstack;
-pub mod sprite;
 mod path;
 mod path2;
 mod pathtrait;
+mod obj;
 
 fn main() {
     println!("Advent of Code 2024");
