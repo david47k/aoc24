@@ -1,4 +1,3 @@
-use std::env::var_os;
 //use itertools::Itertools;
 //use std::collections::{*};
 use crate::grid::{*};
@@ -49,7 +48,7 @@ pub fn day18(input: &String) -> (String, String) {
 	let mut idx_max = nums.len()/2;
 	let bmp_cache = level.wall_bmp.clone();
 
-	let mut idx = (idx_min + idx_max)/2;
+	let mut idx;
 
 	// bisect
 	loop {
@@ -83,9 +82,8 @@ pub fn day18(input: &String) -> (String, String) {
 }
 
 use std::io::{stdout, Write};
-use std::thread::sleep;
 use std::time;
-use crossterm::{execute, ExecutableCommand, cursor, style, terminal, queue};
+use crossterm::{cursor, style, terminal, queue};
 use crossterm::style::Stylize;
 
 fn callback(level: &Level, path: &ShrunkPath, depth: u64) {
