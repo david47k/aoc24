@@ -1,17 +1,17 @@
 
-use std::cmp::min;
+//use std::cmp::min;
 use std::io::stdout;
 use crossterm::execute;
 use itertools::{iproduct, Itertools};
 use std::collections::{*};
-use bevy_tasks::futures_lite::stream::try_unfold;
+//use bevy_tasks::futures_lite::stream::try_unfold;
 //use crate::grid::{*};
 //use crate::vector::{*};
 use crossterm::{cursor, style, terminal, queue};
 use crossterm::style::Stylize;
 use rayon::prelude::IntoParallelRefIterator;
 use rayon::iter::ParallelIterator;
-use crate::gen_test_data;
+//use crate::gen_test_data;
 
 fn find_tp<'a>(pattern: &[u8], tps: &'a Vec<&[u8]>) -> Vec<&'a &'a [u8]> {
 	// returns a list of tp that match part of the pattern

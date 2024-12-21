@@ -102,7 +102,7 @@ fn visualise(level: &Level, path: Option<&ShrunkPath>, status1: &String, status2
 	//  terminal::Clear(terminal::ClearType::All)
 	queue!(stdout, cursor::MoveTo(0, 0), terminal::Clear(terminal::ClearType::CurrentLine)).unwrap();
 	queue!(stdout, style::PrintStyledContent(status1.clone().yellow())).unwrap();
-	let mut level_str = level.to_string();
+	let level_str = level.to_string();
 	// add path to level_str... soln.unwrap().path -> coords
 	queue!(stdout, cursor::MoveTo(0, 1)).unwrap();
 	queue!(stdout, style::Print(level_str)).unwrap();

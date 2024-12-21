@@ -22,6 +22,9 @@ impl Vector {
     pub fn sub(&self, v: &Vector) -> Self {
         Self(self.0 - v.0, self.1 - v.1)
     }
+    pub fn distance(&self, v: &Vector) -> i32 {
+        (self.0 - v.0).abs() + (self.1 - v.1).abs()
+    }
     pub fn double(&self) -> Self {
         Self(self.0 * 2, self.1 * 2)
     }
