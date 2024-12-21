@@ -11,6 +11,7 @@ pub struct Solution {
 	pub score: u64,
 	pub path: Vec<Move2>,
 	pub visited: Vec<Vector>,
+	pub max_depth_hit: bool,
 }
 #[derive(Ord, PartialOrd, Eq, PartialEq, Copy, Clone, Debug)]
 struct NodeID {
@@ -130,7 +131,7 @@ pub fn find_best_path(level: &Level, max_depth: u64) -> Option<Solution> {
 		let score = solutions[0].1.s;
 		let pts = nodes.get(&solutions[0].0).unwrap().pts.clone();
 		//let paths = solutions.iter().map(|(_, data)| data.path.iter().map(|p| p.to_path()).collect_vec()).flatten().collect_vec();
-		Some( Solution { score, path: path.to_path(), visited: pts } )
+		Some( Solution { score, path: path.to_path(), visited: pts, max_depth_hit: false } ) // max_depth_hit not implemented
 	} else {
 		None
 	}
@@ -149,6 +150,7 @@ struct NodeData18 {
 
 pub fn find_best_path_18(level: &Level, max_depth: u64, callback: Option<fn(&Level,&ShrunkPath,u64)>) -> Option<Solution> {
 	let mut depth: u64 = 0;
+	let mut max_depth_hit = false;
 	let mut nodes: BTreeMap<NodeID18,NodeData18> = BTreeMap::new();
 	let mut edge_nodes: Vec<(NodeID18, NodeData18)> = vec![];
 	let mut extra_nodes: Vec<(NodeID18, NodeData18)> = vec![];
@@ -158,7 +160,6 @@ pub fn find_best_path_18(level: &Level, max_depth: u64, callback: Option<fn(&Lev
 	nodes.insert(first_node_id, first_node_data.clone() );
 	edge_nodes.push((first_node_id, first_node_data ));
 	while edge_nodes.len() > 0 && depth < max_depth {
-		//println!("depth: {}", depth);
 		// for each edgenode
 		for (id,data) in edge_nodes.iter() {
 			// is it a winner? save it if so
@@ -217,12 +218,19 @@ pub fn find_best_path_18(level: &Level, max_depth: u64, callback: Option<fn(&Lev
 		edge_nodes = extra_nodes.clone();
 		extra_nodes.clear();
 		depth += 1;
+		if depth >= max_depth {
+			max_depth_hit = true;
+		}
 	}
 	if solutions.len() > 0 {
 		let path = solutions[0].1.path;
 		let score = solutions[0].1.s;
-		Some( Solution { score, path: path.to_path(), visited: vec![] } )
+		let pts = level.get_path_pts(&path.to_path()).clone();
+		Some( Solution { score, path: path.to_path(), visited: pts, max_depth_hit } )
 	} else {
+		if depth==max_depth {
+			//println!("WARNING: hit max depth!");
+		}
 		None
 	}
 }
@@ -230,6 +238,7 @@ pub fn find_best_path_18(level: &Level, max_depth: u64, callback: Option<fn(&Lev
 
 pub fn find_any_path_18(level: &Level, max_depth: u64) -> Option<Solution> {
 	let mut depth: u64 = 0;
+	let mut max_depth_hit = false;
 	let mut nodes: BTreeMap<NodeID18,NodeData18> = BTreeMap::new();
 	let mut edge_nodes: Vec<(NodeID18, NodeData18)> = vec![];
 	let mut extra_nodes: Vec<(NodeID18, NodeData18)> = vec![];
@@ -291,14 +300,17 @@ pub fn find_any_path_18(level: &Level, max_depth: u64) -> Option<Solution> {
 		edge_nodes = extra_nodes.clone();
 		extra_nodes.clear();
 		depth += 1;
+		if depth >= max_depth {
+			max_depth_hit = true;
+		}
 	}
 	if solutions.len() > 0 {
 		let path = solutions[0].1.path;
 		let score = solutions[0].1.s;
-		Some( Solution { score, path: path.to_path(), visited: vec![] } )
+		Some( Solution { score, path: path.to_path(), visited: vec![], max_depth_hit } )
 	} else {
 		if depth==max_depth {
-			println!("WARNING: hit max depth!");
+			//println!("WARNING: hit max depth!");
 		}
 		None
 	}

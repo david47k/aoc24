@@ -83,9 +83,7 @@ impl Level {
 		if self.deer_pos == *pt {
 			return Obj::Deer;
 		}
-		// should be just a space
-		return Obj::Space;
-		//self.data[(pt.0 as usize) + (pt.1 as usize) * (self.w as usize)]
+		self.data[(pt.0 as usize) + (pt.1 as usize) * (self.w as usize)]
 	}
 	pub fn set_obj_at_pt(&mut self, pt: &Vector, obj: Obj) {
 		self.data[(pt.0 as usize) + (pt.1 as usize) * (self.w as usize)] = obj;

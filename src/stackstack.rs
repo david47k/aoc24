@@ -5,7 +5,7 @@
 //
 // default multiplier is 1 (512 bits or path of 256) but it'll overflow with levels which can have long paths
 
-const STACKSTACK64_MAX: usize = 32;
+pub const STACKSTACK64_MAX: usize = 320;	// this is a fairly optimised value for day 20 part 1
 
 #[derive(PartialOrd, Eq, Ord, Clone, Copy, PartialEq, Debug)]
 pub struct StackStack64 {
