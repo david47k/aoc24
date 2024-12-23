@@ -32,10 +32,8 @@ pub fn day22(input: &String) -> (String, String) {
 		let mut diffs: Vec<i8> = vec![];
 		let mut numbers: Vec<u64> = vec![];
 		let mut result: u64 = *n;
-		let mut presult: u64 = 0;
 		let mut pprice: i8 = (result%10) as i8;
 		for _i in 0..2000 {
-			presult = result;
 			result = secret_number_step(result);
 
 			numbers.push(result);

@@ -54,7 +54,7 @@ pub fn day18(input: &String) -> (String, String) {
 	loop {
 		idx = (idx_min + idx_max)/2;
 		if idx == idx_min {
-			status2 = format!("Found sweet spot min {} max {}", idx_min, idx_max);
+			//status2 = format!("Found sweet spot min {} max {}", idx_min, idx_max);
 			idx = idx_max;
 			break;
 		}
@@ -97,7 +97,7 @@ fn clear_screen() {
 	stdout.flush().unwrap();
 }
 // visualise
-fn visualise(level: &Level, path: Option<&ShrunkPath>, status1: &String, status2: &String) {
+fn visualise(level: &Level, _path: Option<&ShrunkPath>, status1: &String, status2: &String) {
 	let mut stdout = stdout();
 	//  terminal::Clear(terminal::ClearType::All)
 	queue!(stdout, cursor::MoveTo(0, 0), terminal::Clear(terminal::ClearType::CurrentLine)).unwrap();
