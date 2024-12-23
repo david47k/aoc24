@@ -132,7 +132,7 @@ pub fn day23(input: &String) -> (String, String) {
 	}
 
 	println!("best set size {}", best_set.len());
-	let s: String = best_set.iter().map(|id| nid2s(id)).intersperse(",".to_string()).collect();
+	let s: String = itertools::intersperse(best_set.iter().map(|id| nid2s(id)), ",".to_string()).collect();
 	println!("part 2 result: {}", s);
 
 	(p1result.to_string(), s)
