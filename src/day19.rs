@@ -15,8 +15,8 @@ use rayon::iter::ParallelIterator;
 
 #[derive(Copy,Clone,Eq,PartialEq,Hash,Ord,PartialOrd)]
 struct Array8 {
-	pub data: [u8; 8],
 	pub len: usize,
+	pub data: [u8; 8],
 }
 
 impl Array8 {
@@ -83,7 +83,8 @@ struct Solver {
 
 impl Solver {
 	pub fn new(tps: &Vec<&[u8]>) -> Self {
-		let nps = tps.iter().map(|&tp| Array8::from_slice(tp)).collect_vec();
+		let mut nps = tps.iter().map(|&tp| Array8::from_slice(tp)).collect_vec();
+		nps.sort();		
 		Self {
 			tps: nps,
 			tps_map: BTreeMap::new(),
@@ -91,7 +92,8 @@ impl Solver {
 		}
 	}
 	pub fn lookup(&mut self, a: &Array8) -> bool {
-		self.tps.binary_search(a).is_ok()		// can also try binary_search
+		//self.tps.binary_search(a).is_ok()		// can also try binary_search, if the vec is sorted properly
+		self.tps.contains(a)
 	}
 	pub fn cached_lookup(&mut self, a: &Array8) -> bool {
 		// may be faster with tps.contains or tps_set.contains		
