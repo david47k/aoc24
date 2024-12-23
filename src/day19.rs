@@ -13,11 +13,68 @@ use rayon::prelude::IntoParallelRefIterator;
 use rayon::iter::ParallelIterator;
 //use crate::gen_test_data;
 
-struct Solver {
-	tps: Vec<[u8]>,
-	tps_map: HashMap<[u8], bool>,
-	length_map: HashMap<[u8], usize>,
+#[derive(Copy,Clone,Eq,PartialEq,Hash,Ord,PartialOrd)]
+struct Array8 {
+	pub data: [u8; 8],
+	pub len: usize,
+}
 
+impl Array8 {
+	pub fn from_slice(p: &[u8]) -> Self {
+		let mut data: [u8; 8] = [0; 8];
+		let len = 8.min(p.len());
+		for i in 0..len {
+			data[i] = p[i]; 		
+		}
+		Self {
+			data,
+			len
+		}
+	}
+	pub fn trunc(&self, s: usize) -> Self {
+		let mut data: [u8; 8] = [0; 8];
+		let len = 8.min(s);
+		for i in 0..len {
+			data[i] = self.data[i];
+		}
+		Self {
+			data,
+			len
+		}				
+	}
+	pub fn trunc_self(&mut self, s: usize) {
+		self.len = self.len.min(s);
+		for i in self.len..8 {
+			self.data[i] = 0;
+		}
+	}
+	pub fn from_vec(v: &Vec<u8>) -> Self {
+		let mut data: [u8; 8] = [0; 8];
+		let len = 8.min(v.len());
+		for i in 0..len {
+			data[i] = v[i]; 		
+		}
+		Self {
+			data,
+			len
+		}
+	}
+	pub fn len(&self) -> usize {
+		self.len
+	}
+	pub fn to_string(&self) -> String {
+		let mut s = String::new();
+		for i in 0..self.len {
+			s += &String::from(self.data[i] as char);
+		}
+		return s;
+	}
+}
+
+struct Solver {
+	tps: Vec<Array8>,
+	tps_map: BTreeMap<Array8, bool>,
+	length_map: BTreeMap<Array8, u8>,
 }
 
 // speed consideration:
@@ -25,55 +82,78 @@ struct Solver {
 // - can store colour in 3 bits
 
 impl Solver {
-	pub fn new() -> Solver {
+	pub fn new(tps: &Vec<&[u8]>) -> Self {
+		let nps = tps.iter().map(|&tp| Array8::from_slice(tp)).collect_vec();
 		Self {
-			tps: vec![],
-			tps_map: HashMap::new(),
-			length_map: HashMap::new(),		// HashMap vs BTreeMap... which is faster?!
+			tps: nps,
+			tps_map: BTreeMap::new(),
+			length_map: BTreeMap::new(),		// HashMap vs BTreeMap... which is faster?!
 		}
 	}
-	pub fn cached_lookup(&mut self, p: &[u8]) -> bool {
-		// may be faster with tps.contains or tps_set.contains
-		let r = self.tps_map.get(p);
+	pub fn lookup(&mut self, a: &Array8) -> bool {
+		self.tps.binary_search(a).is_ok()		// can also try binary_search
+	}
+	pub fn cached_lookup(&mut self, a: &Array8) -> bool {
+		// may be faster with tps.contains or tps_set.contains		
+		let r = self.tps_map.get(&a);
 		if let Some(b) = r {
 			return *b;
 		} else {
-			let r = self.tps.contains(p);
-			self.tps_map.insert(*p, r);
-			return r;
+			let x = self.tps.contains(a);
+			self.tps_map.insert(*a, x);
+			return x;
 		}
 	}
-	pub fn get_lengths(&mut self, p: &[u8]) -> u8 {
-		let lmax = 8.min(p.len());
+	pub fn get_lengths_slow_reveresed(&mut self, mut a: Array8) -> u8 {
 		let mut r: u8 = 0;
-		for i in 1..=lmax {
-			r <<= 1;
-			r |= self.cached_lookup(p) as u8;
+		//let mut a = a.clone();
+		for i in (1..=8.min(a.len)).rev() {
+			r >>= 1;
+			a.trunc_self(i);
+			let x = self.cached_lookup(&a);
+			r |= (x as u8) << 7;
 		}
 		return r;
 	}
-	pub fn cached_get_lengths(&mut self, p: &[u8]) -> u8 {
-		let r = self.length_map.get(p);
+	pub fn get_lengths(&mut self, a: Array8) -> u8 {
+		let mut r: u8 = 0;
+		for i in 1..=8 {
+			r <<= 1;
+			if i <= a.len() {
+				let x = self.lookup(&a.trunc(i));
+				r |= x as u8;
+			}
+		}
+		return r;
+	}
+	pub fn cached_get_lengths(&mut self, a: Array8) -> u8 {
+		let r = self.length_map.get(&a);
 		if let Some(n) = r {
 			return *n;
 		} else {
-			let r = self.get_lengths(p);
-			self.length_map.insert(*p, r);
-			return r;
+			let x = self.get_lengths(a);
+			self.length_map.insert(a, x);
+			return x;
 		}
 	}
-	pub fn get_num_combos(&mut self, p: &[u8]) -> u64 {
+	pub fn get_num_combos(&mut self, p: &[u8], depth: u64, mut t: f64) -> u64 {
 		let mut r: u64 = 0;
-		for i in 0..p.len() {
-			let lengths: u8 = self.cached_get_lengths(p);
-			for j in 0..=7_usize {
-				let try_length = j as u8 & lengths != 0;
-				if try_length {
-					if i + j == 0 {
-						r += 1;
-					} else {
-						r += self.get_num_combos(&p[j..]);
+		let a = Array8::from_slice(p);
+		let lengths: u8 = self.cached_get_lengths(a);
+		for j in 0..=7_usize {
+			let len = 8 - j;
+			let try_length = ((lengths >> j as u8) & 0x01) != 0;
+			if try_length {
+				if len == p.len() {
+					r += 1;
+				} else  if len <= p.len() {
+					if depth == 7 {
+						println!("  trying depth {} length {}", depth, len);
+						let t1 = crate::time::get_time_ms();
+						println!("  time: {:0.3}s", (t1 - t)/1000.0);
+						t = t1;
 					}
+					r += self.get_num_combos(&p[len..], depth+1, t);
 				}
 			}
 		}
@@ -173,7 +253,7 @@ pub fn day19(input: &String) -> (String, String) {
 	let min_len = tps.iter().min_by(|&&a, &&b| a.len().cmp(&b.len())).unwrap().len();
 	let patterns = lines[2..].iter().map(|&s| s.as_bytes()).collect_vec();
 	tps.sort();
-	let pbs: BTreeSet<&[u8]> = BTreeSet::from_iter(tps.clone());		// just a btree of tps
+	// let pbs: BTreeSet<&[u8]> = BTreeSet::from_iter(tps.clone());		// just a btree of tps
 
 	// print basic stats
 
@@ -240,13 +320,16 @@ pub fn day19(input: &String) -> (String, String) {
 	println!("day 19 part 2");
 
 	let mut p2score = 0;
-
+	let mut solver = Solver::new(&tps);
+	println!("Solver loaded with {} tps, first of which is {}", solver.tps.len(), solver.tps[0].to_string());
+		
+		
 	for (i,&p) in patterns.iter().enumerate() {
 		execute!(stdout(),
-			style::PrintStyledContent(format!("pattern: {}",i).cyan()),
+			style::PrintStyledContent(format!("pattern {}:",i).cyan()),
 		).unwrap();
 
-		let mut count: u64 = test_pattern(p, &supermap);
+		let mut count: u64 = solver.get_num_combos(p, 0, crate::time::get_time_ms());
 
 		execute!(stdout(), style::PrintStyledContent(format!(" {}\n", count).green())).unwrap();
 		p2score += count;
