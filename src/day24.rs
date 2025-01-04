@@ -289,8 +289,9 @@ pub fn day24(input: &String) -> (String, String) {
 	println!("part 1 solution: {}", p1soln);
 	
 	// part 2
+	// see notes24.txt for digital logic
 	
-	// we will start by identifying which wires / gates are correct, in order to reduce the search space
+	// analyse gate types and wire types
 
 	println!("\ngate types: ");
 	let gate_types = circuit.gates.iter().map(|g| g.borrow().op.to_string()).collect_vec();
@@ -299,42 +300,15 @@ pub fn day24(input: &String) -> (String, String) {
 		println!("{}: {}", k, v.iter().sum::<i32>());
 	}
 
-	// input wires x00..=x44 and y00..=y44 are valid by default
 	let wire_ids = circuit.wires.iter().map(|a| a.borrow().id.chars().map(|c| c).collect_vec()).collect_vec();
 	let non_input_wires = wire_ids.iter().enumerate().filter(|(_i,wid)| wid[0] != 'x' && wid[0] != 'y').collect_vec();
 	println!("input wires: {}", circuit.wires.len() - non_input_wires.len());
 	println!("non-input wires: {}", non_input_wires.len());
 
-	// For a FULL-ADDER circuit (i.e. with inputs X01 to X44)
-	// There are 3 non-output wires, and 2 output wires (Zn and Cn)
-	// For the non-output wires:
-	// -- Dn has XOR1 as input, and 2 outputs: XOR2 and AND1.
-	// -- En has AND1 as input, and OR as output
-	// -- Fn has AND2 as input, and OR as output
-	// -- XOR2 outputs to Zn and nothing else
-	// -- COUTn outputs to row n+1 XOR2 and row n+1 AND1 (except for row 44, which outputs directly as Z45)
-	
-	// For a HALF-ADDER circuit (i.e. with X00 as input)
-	// There are only 2 outputs: 
-	// - Z00, from XOR1
-	// - COUT00 from AND1
-
-	// output wires are on z00 to z45
-	// input wires are on x00 to x44 and y00 to y44
-	// half adder has an XOR and AND gate, to make sum + carry
-	// full adder has two half adders plus OR gate,
-	//     so 2 XOR, 2 AND, and 1 OR (5 gates)
-	
-	// XOR: 89: 45 sxor1 gates (x/y00 to x/y44) + 44 sxor2 gates (sxor1_01/c01 to sxor1_44/c44).
-	// AND: 89 .. 45 + 44 gates
-	// OR: 44
-	// non-io wires: 176
-	//
-
-
-	let mut valid_wire_ids: Vec<String> = Vec::new();	// wires that have their input (source) validated
-
 	// input wires are all valid
+
+	let mut valid_wire_ids: Vec<String> = Vec::new();
+
 	for w in circuit.wires.iter() {
 		let c = w.borrow().id.chars().collect_vec()[0];
 		if c == 'x' || c == 'y' {
@@ -350,10 +324,12 @@ pub fn day24(input: &String) -> (String, String) {
 	}
 
 	// XOR1 gates are identifiable from input wires
+
 	let xor1s = circuit.gates.iter()
 		.filter(|g| g.borrow().op == Operation::XOR &&
 			circuit.get_gate_input_ids(g.borrow().idx).iter().all(|wid| valid_wire_ids.iter().any(|id| id==wid)))
 		.map(|a| a.clone()).collect_vec();
+
 	xor1s.iter().for_each(|g| {
 		let input_ids = circuit.get_gate_input_ids(g.borrow().idx);
 		let n = input_ids[0][1..=2].parse::<usize>().unwrap();
@@ -368,6 +344,7 @@ pub fn day24(input: &String) -> (String, String) {
 		};
 		g.borrow_mut().n = Some(n);
 	});
+
 	if xor1s.len() != 45 {
 		println!("ERROR: Invalid number of XOR1 gates. Expected 45, got {}", xor1s.len());
 	} else {
@@ -378,7 +355,7 @@ pub fn day24(input: &String) -> (String, String) {
 	}
 
 	// AND1 gates are identifiable from input wires
-	//let and1s = circuit.gates.iter().filter(|g| g.borrow().op == Operation::AND && valid_wire_ids.contains(&g.borrow().input_ids[0]) && valid_wire_ids.contains(&g.borrow().input_ids[1])).map(|a| a.clone()).collect_vec();
+
 	let and1s = circuit.gates.iter()
 		.filter(|g| g.borrow().op == Operation::AND &&
 			circuit.get_gate_input_ids(g.borrow().idx).iter().all(|wid| valid_wire_ids.iter().any(|id| id==wid)))
@@ -409,36 +386,36 @@ pub fn day24(input: &String) -> (String, String) {
 	}
 
 	// All OR gate have role GateRole::OR
+
 	circuit.gates.iter().filter(|g| g.borrow().op == Operation::OR).for_each(|g| {
 		g.borrow_mut().role = GateRole::OR;
 	});
 
 	// All gates should have a role now
+
 	let unassigned = circuit.gates.iter().filter(|g| g.borrow().role == GateRole::UNK).collect_vec();
 	if unassigned.len() > 0 {
 		println!("ERROR: Some gates do not have a role!");
 		return (p1soln.to_string(), "unknown".to_string());
 	}
 
-	let mut dodgy_gates: Vec<Rc<RefCell<Gate>>> = vec![];
 
 	// find definitely invalid wires, by looking to see if gate output matches desired kind of gate output
-	//
 	println!("Finding definitely invalid gate outputs");
+	let mut dodgy_gates: Vec<Rc<RefCell<Gate>>> = vec![];
+
 	for g in circuit.gates.iter() {
 		let role = g.borrow().role;
 		let output_id = g.borrow().output_id.clone();
 		let mut is_dodgy = false;
 		match role {
 			GateRole::XOR => {
-				// inputs already checked
 				// test that output goes to z00
 				if g.borrow().output_id != "z00" {
 					is_dodgy = true;
 				}
 			},
             GateRole::XOR1 => {
-				// inputs already checked
 				// test that output goes to XOR2 and AND2
 				let output_gates = circuit.get_wire_by_id(&output_id).unwrap().borrow().output_gates.clone();
 				let output_gate_roles = output_gates.iter().map(|og| og.borrow().role.clone()).collect_vec();
@@ -453,7 +430,6 @@ pub fn day24(input: &String) -> (String, String) {
 				}
 			},
 			GateRole::AND => {
-				// inputs already checked
 				// check outputs to XOR2 and AND2
 				let output_gates = circuit.get_wire_by_id(&output_id).unwrap().borrow().output_gates.clone();
 				let output_gate_roles = output_gates.iter().map(|og| og.borrow().role.clone()).collect_vec();
@@ -462,7 +438,6 @@ pub fn day24(input: &String) -> (String, String) {
 				}
 			},
 			GateRole::AND1 => {
-				// inputs already checked
 				// check it outputs to OR gate
 				let output_gates = circuit.get_wire_by_id(&output_id).unwrap().borrow().output_gates.clone();
 				let output_gate_roles = output_gates.iter().map(|og| og.borrow().role.clone()).collect_vec();
@@ -472,7 +447,6 @@ pub fn day24(input: &String) -> (String, String) {
 			},
 			GateRole::AND2 => {
 				// output must go to an OR gate
-				// check it outputs to OR gate
 				let output_gates = circuit.get_wire_by_id(&output_id).unwrap().borrow().output_gates.clone();
 				let output_gate_roles = output_gates.iter().map(|og| og.borrow().role.clone()).collect_vec();
 				if output_gate_roles != vec![GateRole::OR] {
@@ -496,6 +470,7 @@ pub fn day24(input: &String) -> (String, String) {
 			println!("dodgy! {} at idx {} with output_id {}", g.borrow().to_string(), g.borrow().idx, output_id);
 		}
 	}
+
 	println!("--- total {} dodgy gate outputs found ---", dodgy_gates.len());
 
 	let mut dodgy_ids = dodgy_gates.iter().map(|g| g.borrow().output_id.clone()).collect_vec();
