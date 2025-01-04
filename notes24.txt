@@ -1,0 +1,41 @@
+Logic for puzzle:
+
+Inputs:         Xn, Yn
+Output:         Zn
+Carry output:   Cn
+Intermediates:  Dn, En, Fn
+
+For n == 0:
+       ______
+Xn ---|      |
+      | XOR  |--- Dn
+Yn ---|______|
+       ______
+Xn ---|      |
+      | AND  |--- Dn
+Yn ---|______|
+
+
+
+For n > 0:
+         ______
+Xn   ---|      |
+        | XOR1 |--- Dn
+Yn   ---|______|
+         ______
+Xn   ---|      |
+        | AND1 |--- En
+Yn   ---|______|
+         ______
+Dn   ---|      |
+        | XOR2 |--- Zn
+Cn-1 ---|______|
+         ______
+Dn   ---|      |
+        | AND2 |--- Fn
+Cn-1 ---|______|
+         ______
+En   ---|      |
+        | OR   |--- Cn (or Z_final)
+Fn   ---|______|
+

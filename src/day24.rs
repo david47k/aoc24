@@ -1,21 +1,6 @@
+use std::cell::RefCell;
+use std::rc::Rc;
 use itertools::Itertools;
-//use std::collections::{*};
-
-
-
-fn str_truncate(s: &str, max_width: usize) -> String {
-    s.chars().take(max_width).collect()
-}
-
-fn str_append_chars(s: &str, chars: &[char]) -> String {
-	let mut s2 = String::from(s);
-	for c in chars {
-		s2.push(*c);
-	}
-	s2
-}
-
-
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 enum Operation {
@@ -49,70 +34,114 @@ impl Operation {
 	}
 }
 
+// Wire Role is:
+// X, Y (inputs)
+// Z (output),
+// C (carry),
+// D, E, F (intermediate values),
+// U (unknown)
+
 #[derive(Clone, Debug, Eq, PartialEq)]
 struct Wire {
 	pub id: String,
 	pub value: Option<bool>,
-	pub output_gates: Vec<usize>,
-	pub name: String,
+	pub output_gates: Vec<Rc<RefCell<Gate>>>,
+	pub role: char,
+	pub n: Option<usize>,
 }
 
-impl Wire {
-	pub fn update(&mut self, value: bool) {
-		if self.value.is_none() {
-			self.value = Some(value);
+// Gate Role is the role of the gate in the adder circuit
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
+enum GateRole {
+	UNK,
+	XOR1,
+	XOR2,
+	AND1,
+	AND2,
+	OR,
+	XOR,			// for n == 0 only
+	AND,			// for n == 0 only
+}
+
+impl GateRole {
+	pub fn to_string(&self) -> String {
+		match self {
+			GateRole::UNK => "UNK".to_string(),
+			GateRole::XOR1 => "XOR1".to_string(),
+			GateRole::XOR2 => "XOR2".to_string(),
+			GateRole::AND1 => "AND1".to_string(),
+			GateRole::AND2 => "AND2".to_string(),
+			GateRole::OR => "OR".to_string(),
+			GateRole::XOR => "XOR".to_string(),
+			GateRole::AND => "AND".to_string(),
 		}
 	}
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 struct Gate {
+	idx: usize,
 	output_value: Option<bool>,
-	input_a_id: String,
-	input_b_id: String,
+	//input_ids: [ String; 2 ],
 	output_id: String,
 	op: Operation,
-	name: String,
+	role: GateRole,
+	n: Option<usize>,
+}
+
+impl Gate {
+	pub fn to_string(&self) -> String {
+		let mut s = String::new();
+		if self.role == GateRole::UNK {
+			s.push_str(&format!("gate UNK (op={}, n={:?})", self.op.to_string(), self.n));
+		} else {
+			s.push_str(&format!("gate {} (n={:?})", self.role.to_string(), self.n));
+		}
+		s
+	}
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 struct Circuit {
-	pub wires: Vec<Wire>,
-	pub gates: Vec<Gate>,
+	pub wires: Vec<Rc<RefCell<Wire>>>,
+	pub gates: Vec<Rc<RefCell<Gate>>>,
 }
 
 impl Circuit {
 	fn new() -> Self {
 		Self {
-			wires: Vec::<Wire>::new(),
-			gates: Vec::<Gate>::new(),
+			wires: vec![],
+			gates: vec![],
 		}
-	}	
-	fn get_gate_idx_by_name(&self, name: &str) -> Vec<usize> {
-		self.gates.iter().enumerate().filter(|(_i,g)| str_truncate(&g.name, name.len()) == name).map(|(i,_g)| i).collect_vec()
 	}
-	fn get_mut_wire_by_id(&mut self, id: &str) -> Option<&mut Wire> {
-		self.wires.iter_mut().find(|a| a.id == id)
+	fn get_wire_by_id(&self, id: &str) -> Option<Rc<RefCell<Wire>>> {
+		if let Some(r) = self.wires.iter().find(|a| a.borrow().id == id) {
+			return Some(r.clone());
+		} else {
+			return None;
+		}
 	}
-	fn get_wire_by_id(&self, id: &str) -> Option<&Wire> {
-		self.wires.iter().find(|a| a.id == id)
+	fn get_gate_input_wires(&self, gate_idx: usize) -> Vec<Rc<RefCell<Wire>>> {
+		self.wires.iter().filter(|w| w.borrow().output_gates.iter().any(|g| g.borrow().idx == gate_idx)).cloned().collect_vec()
 	}
-	fn get_wire_idx_by_id(&self, id: &str) -> Option<usize> {
-		self.wires.iter().position(|a| a.id == id)
+	fn get_gate_input_ids(&self, gate_idx: usize) -> Vec<String> {
+		self.wires.iter().filter(|w| w.borrow().output_gates.iter().any(|g| g.borrow().idx == gate_idx)).cloned().map(|w| w.borrow().id.clone()).collect_vec()
 	}
 	fn run_calculation(&mut self) {
 		let mut gates_processed = 1;
 		while gates_processed > 0 {
 			gates_processed = 0;
-			for gate_idx in 0..self.gates.len() {
-				if self.gates[gate_idx].output_value.is_none() {
-					let a = self.get_wire_by_id(&self.gates[gate_idx].input_a_id).unwrap().value;
-					let b = self.get_wire_by_id(&self.gates[gate_idx].input_b_id).unwrap().value;
+			for gate in self.gates.iter() {
+				if gate.borrow().output_value.is_none() {
+					let input_wires = self.get_gate_input_wires(gate.borrow().idx);
+					let a = input_wires[0].borrow().value.clone();
+					let b = input_wires[1].borrow().value;
 					if a.is_some() && b.is_some() {
-						let output_value = Some(self.gates[gate_idx].op.operate(a.unwrap(), b.unwrap()));
-						self.gates[gate_idx].output_value = output_value;
-						let wire_id = self.gates[gate_idx].output_id.clone();
-						self.get_mut_wire_by_id(&wire_id).unwrap().update(output_value.unwrap());
+						let output_value = Some(gate.borrow().op.operate(a.unwrap(), b.unwrap()));
+						gate.borrow_mut().output_value = output_value;
+						let wire_id = gate.borrow().output_id.clone();
+						let output_wire = self.get_wire_by_id(&wire_id).unwrap();
+						output_wire.borrow_mut().value = output_value;
 						gates_processed += 1;
 					}
 				}
@@ -122,71 +151,25 @@ impl Circuit {
 	}
 	fn set_input(&mut self, input_x: u64, input_y: u64) {
 		// check input is in range
-		assert!(input_x <= (0x01 << 44));
-		assert!(input_y <= (0x01 << 44));
+		assert!(input_x <= (1 << 44));
+		assert!(input_y <= (1 << 44));
 		// get all the input wires
-		let mut x_wires = self.wires.iter().enumerate().filter(|(_i,&ref k)| k.id.chars().nth(0)==Some('x')).map(|(i,&ref k)| (k.id.clone(), i)).collect_vec();
-		let mut y_wires = self.wires.iter().enumerate().filter(|(_i,&ref k)| k.id.chars().nth(0)==Some('y')).map(|(i,&ref k)| (k.id.clone(), i)).collect_vec();
+		let mut x_wires = self.wires.iter().enumerate().filter(|(_i,&ref k)| k.borrow().id.chars().nth(0)==Some('x')).map(|(i,&ref k)| (k.borrow().id.clone(), i)).collect_vec();
+		let mut y_wires = self.wires.iter().enumerate().filter(|(_i,&ref k)| k.borrow().id.chars().nth(0)==Some('y')).map(|(i,&ref k)| (k.borrow().id.clone(), i)).collect_vec();
 		// sort them x00..x44 and y00..y44
 		x_wires.sort_by(|a,b| a.0.cmp(&b.0));
 		y_wires.sort_by(|a,b| a.0.cmp(&b.0));
 		// set values
 		for (i,(_id, idx)) in x_wires.iter().enumerate() {
-			self.wires[*idx].value = Some(((input_x >> i) & 0x01) != 0);
+			self.wires[*idx].borrow_mut().value = Some(((input_x >> i) & 0x01) != 0);
 		}
 		for (i,(_id, idx)) in y_wires.iter().enumerate() {
-			self.wires[*idx].value = Some(((input_y >> i) & 0x01) != 0);
+			self.wires[*idx].borrow_mut().value = Some(((input_y >> i) & 0x01) != 0);
 		}		
-	}
-	fn test_row(&mut self, row: usize) -> bool {
-		// true for valid, false for invalid
-		// test 0,0 0,1 1,0 1,1 and look for valid outputs
-		// we will also test overflow (carry)		
-		assert!(row <= 44);
-		let n = 1 << row;
-
-		self.set_input(0,0);
-		println!("0x{:012x}, 0x{:012x}", self.get_input_x(), self.get_input_y());
-		self.run_calculation();
-		let r = self.get_output();
-		println!("  output: {:012x}  ", r);
-		if (r>>row) & 0x03 != 0 {
-			return false;				
-		}
-		
-		self.set_input(n,0);
-		println!("0x{:012x}, 0x{:012x}", self.get_input_x(), self.get_input_y());
-		self.run_calculation();
-		let r = self.get_output();
-		println!("  output: {:012x}  ", r);
-		if (r>>row) & 0x03 != 1 {
-			return false;
-		}
-		
-		self.set_input(0,n);
-		println!("0x{:012x}, 0x{:012x}", self.get_input_x(), self.get_input_y());
-		self.run_calculation();
-		let r = self.get_output();
-		println!("  output: {:012x}  ", r);
-		if (r>>row) & 0x03 != 1 {
-			return false;
-		}
-		
-		// this last one tests for a positive carry 
-		self.set_input(n,n);
-		println!("0x{:06x}, 0x{:012x}", self.get_input_x(), self.get_input_y());
-		self.run_calculation();
-		let r = self.get_output();
-		println!("  output: {:012x}  ", r);
-		if (r>>row) & 0x03 != 2 {
-			return false;
-		}
-		
-		return true;
 	}
 	fn get_output(&self) -> u64 {
 		// get all the zed wires
-		let mut outputs = self.wires.iter().filter(|&ref k| k.id.chars().nth(0)==Some('z')).map(|&ref k| (k.id.clone(), k.value)).collect_vec();
+		let mut outputs = self.wires.iter().filter(|&ref k| k.borrow().id.chars().nth(0)==Some('z')).map(|&ref k| (k.borrow().id.clone(), k.borrow().value)).collect_vec();
 		// sort them
 		outputs.sort_by(|a,b| a.0.cmp(&b.0));
 		// find solution
@@ -194,7 +177,7 @@ impl Circuit {
 	}
 	fn get_input_x(&self) -> u64 {	// for testing
 		// get all the x wires
-		let mut outputs = self.wires.iter().filter(|&ref k| k.id.chars().nth(0)==Some('x')).map(|&ref k| (k.id.clone(), k.value)).collect_vec();
+		let mut outputs = self.wires.iter().filter(|&ref k| k.borrow().id.chars().nth(0)==Some('x')).map(|&ref k| (k.borrow().id.clone(), k.borrow().value)).collect_vec();
 		// sort them
 		outputs.sort_by(|a,b| a.0.cmp(&b.0));
 		// find solution
@@ -202,11 +185,23 @@ impl Circuit {
 	}
 	fn get_input_y(&self) -> u64 {	// for testing
 		// get all the y wires
-		let mut outputs = self.wires.iter().filter(|&ref k| k.id.chars().nth(0)==Some('y')).map(|&ref k| (k.id.clone(), k.value)).collect_vec();
+		let mut outputs = self.wires.iter().filter(|&ref k| k.borrow().id.chars().nth(0)==Some('y')).map(|&ref k| (k.borrow().id.clone(), k.borrow().value)).collect_vec();
 		// sort them
 		outputs.sort_by(|a,b| a.0.cmp(&b.0));
 		// find solution
 		outputs.iter().enumerate().map(|(i, k)| ((k.1.unwrap() as u64) << i)).sum()
+	}
+	fn very_basic_test(&mut self, expected: u64) -> bool {
+		// self.set_input(a,b);
+		//self.reset();
+		self.run_calculation();
+		self.get_output() == expected
+	}
+	fn swap_gate_outputs(&self, a: Rc<RefCell<Gate>>, b: Rc<RefCell<Gate>>) {
+		let av = a.borrow().output_id.clone();
+		let bv = b.borrow().output_id.clone();
+		b.borrow_mut().output_id = av;
+		a.borrow_mut().output_id = bv;
 	}
 }
 
@@ -223,7 +218,13 @@ pub fn day24(input: &String) -> (String, String) {
 	while !lines[row].is_empty() {
 		let wire_id = lines[row][0..=2].to_string();
 		let wire_value = lines[row][5..=5].to_string().parse::<u8>().unwrap() != 0;
-		circuit.wires.push( Wire { id: wire_id, value: Some(wire_value), output_gates: vec![], name: "".to_string() });
+		circuit.wires.push( Rc::from(RefCell::from( Wire {
+			id: wire_id,
+			value: Some(wire_value),
+			output_gates: vec![],
+			role: 'U',
+			n: None,
+		})));
 		row += 1;
 	}
 
@@ -238,35 +239,45 @@ pub fn day24(input: &String) -> (String, String) {
 		let input_b_id = row_data[3];
 		let output_id = row_data[4];
 
-		// initialise associated wires
-		if let Some(w) = circuit.get_mut_wire_by_id(input_a_id) {
-			w.output_gates.push(gate_idx);
-		} else {
-			circuit.wires.push( Wire { id: input_a_id.to_string(), value: None, output_gates: vec![gate_idx], name: "".to_string() } );
-		}
-		if let Some(w) = circuit.get_mut_wire_by_id(input_b_id) {
-			w.output_gates.push(gate_idx);
-		} else {
-			circuit.wires.push( Wire { id: input_b_id.to_string(), value: None, output_gates: vec![gate_idx], name: "".to_string() } );
-		}
-		if let Some(_w) = circuit.get_mut_wire_by_id(output_id) {
-			// do nothing
-		} else {
-			circuit.wires.push( Wire { id: output_id.to_string(), value: None, output_gates: vec![], name: "".to_string() } );
-		}
-
-		circuit.gates.push( Gate {
+		// create the gate
+		let gate = Rc::from(RefCell::from( Gate {
+			idx: gate_idx,
 			output_value: None,
-			input_a_id: input_a_id.to_string(),
-			input_b_id: input_b_id.to_string(),
+			//input_ids: [ input_a_id.to_string(), input_b_id.to_string() ],
 			output_id: output_id.to_string(),
 			op: Operation::from_str(&op),
-			name: "".to_string(),
-		});
+			role: GateRole::UNK,
+			n: None,
+		}));
 
+		// initialise associated wires
+		for input_id in [ input_a_id, input_b_id ].into_iter() {
+			if let Some(w) = circuit.get_wire_by_id(input_id) {
+				w.borrow_mut().output_gates.push(gate.clone());
+			} else {
+				circuit.wires.push(Rc::from(RefCell::from( Wire {
+					id: input_id.to_string(),
+					value: None,
+					output_gates: vec![gate.clone()],
+					role: 'U',
+					n: None,
+				})));
+			}
+		}
 
-		gate_idx += 1;
+		if let None = circuit.get_wire_by_id(output_id) {
+			circuit.wires.push( Rc::from(RefCell::from( Wire {
+				id: output_id.to_string(),
+				value: None,
+				output_gates: vec![],
+				role: 'U',
+				n: None,
+			} )));
+		}
+
+		circuit.gates.push(gate);
 		row += 1;
+		gate_idx += 1;
 	}
 
 	// perform calculation
@@ -282,14 +293,14 @@ pub fn day24(input: &String) -> (String, String) {
 	// we will start by identifying which wires / gates are correct, in order to reduce the search space
 
 	println!("\ngate types: ");
-	let gate_types = circuit.gates.iter().map(|g| g.op.to_string()).collect_vec();
+	let gate_types = circuit.gates.iter().map(|g| g.borrow().op.to_string()).collect_vec();
 	let gate_counts = gate_types.iter().map(|k| (k,1)).into_group_map();
 	for (k,v) in &gate_counts {
 		println!("{}: {}", k, v.iter().sum::<i32>());
 	}
 
 	// input wires x00..=x44 and y00..=y44 are valid by default
-	let wire_ids = circuit.wires.iter().map(|a| a.id.chars().map(|c| c).collect_vec()).collect_vec();
+	let wire_ids = circuit.wires.iter().map(|a| a.borrow().id.chars().map(|c| c).collect_vec()).collect_vec();
 	let non_input_wires = wire_ids.iter().enumerate().filter(|(_i,wid)| wid[0] != 'x' && wid[0] != 'y').collect_vec();
 	println!("input wires: {}", circuit.wires.len() - non_input_wires.len());
 	println!("non-input wires: {}", non_input_wires.len());
@@ -320,74 +331,178 @@ pub fn day24(input: &String) -> (String, String) {
 	// non-io wires: 176
 	//
 
+
 	let mut valid_wire_ids: Vec<String> = Vec::new();	// wires that have their input (source) validated
 
 	// input wires are all valid
-	for (_i,w) in circuit.wires.iter().enumerate() {
-		let c = w.id.chars().collect_vec()[0];
+	for w in circuit.wires.iter() {
+		let c = w.borrow().id.chars().collect_vec()[0];
 		if c == 'x' || c == 'y' {
-			valid_wire_ids.push(w.id);
+			valid_wire_ids.push(w.borrow().id.clone());
+			w.borrow_mut().role = if c == 'x' {
+				'X'
+			} else {
+				'Y'
+			};
+			let n = w.borrow().id[1..=2].parse::<usize>().unwrap();
+			w.borrow_mut().n = Some(n);
 		}
 	}
 
-
 	// XOR1 gates are identifiable from input wires
-	let mut xor1s = circuit.gates.iter_mut().filter(|g| g.op == Operation::XOR && valid_wire_ids.contains(&g.input_a_id) && valid_wire_ids.contains(&g.input_b_id)).collect_vec();
-	xor1s.iter_mut().for_each(|g| {
-		let chars = &g.input_a_id.chars().collect_vec()[1..=2];
-		g.name = str_append_chars("XOR1_", chars);
+	let xor1s = circuit.gates.iter()
+		.filter(|g| g.borrow().op == Operation::XOR &&
+			circuit.get_gate_input_ids(g.borrow().idx).iter().all(|wid| valid_wire_ids.iter().any(|id| id==wid)))
+		.map(|a| a.clone()).collect_vec();
+	xor1s.iter().for_each(|g| {
+		let input_ids = circuit.get_gate_input_ids(g.borrow().idx);
+		let n = input_ids[0][1..=2].parse::<usize>().unwrap();
+		let n2 = input_ids[1][1..=2].parse::<usize>().unwrap();
+		if n != n2 {
+			panic!("input ids do not match");
+		}
+		g.borrow_mut().role = if n == 0 {
+			GateRole::XOR
+		} else {
+			GateRole::XOR1
+		};
+		g.borrow_mut().n = Some(n);
 	});
-	let xor1s = circuit.get_gate_idx_by_name("XOR1_");;
+	if xor1s.len() != 45 {
+		println!("ERROR: Invalid number of XOR1 gates. Expected 45, got {}", xor1s.len());
+	} else {
+		// we can label the rest of the XOR gates
+		circuit.gates.iter().filter(|g| g.borrow().role == GateRole::UNK && g.borrow().op == Operation::XOR).for_each(|g| {
+			g.borrow_mut().role = GateRole::XOR2;
+		});
+	}
 
 	// AND1 gates are identifiable from input wires
-	let mut and1s = circuit.gates.iter_mut().filter(|g| g.op == Operation::AND && valid_wire_ids.contains(&g.input_a_id) && valid_wire_ids.contains(&g.input_b_id)).collect_vec();
-	and1s.iter_mut().for_each(|g| {
-		let chars = &g.input_a_id.chars().collect_vec()[1..=2];
-		g.name = str_append_chars("AND1_", chars);
-	});
-	let and1s = circuit.get_gate_idx_by_name("AND1_");;
+	//let and1s = circuit.gates.iter().filter(|g| g.borrow().op == Operation::AND && valid_wire_ids.contains(&g.borrow().input_ids[0]) && valid_wire_ids.contains(&g.borrow().input_ids[1])).map(|a| a.clone()).collect_vec();
+	let and1s = circuit.gates.iter()
+		.filter(|g| g.borrow().op == Operation::AND &&
+			circuit.get_gate_input_ids(g.borrow().idx).iter().all(|wid| valid_wire_ids.iter().any(|id| id==wid)))
+		.map(|a| a.clone()).collect_vec();
 
-	// AND1 gate 00 should only output to C00 ( AND2_01 and XOR2_01 )
-	// AND1 gates 01 to 44 should only output to an OR gate
-	// AND2 gates 01 to 44 should only outupt to the same OR Gate
-	// AND2_00 does not exist
-	
-	// Find the AND1 gates and check the output wire to make sure it only outputs to 1 OR gate
-	for idx in and1s {
-		print!("gate {}: ", circuit.gates[idx].name);
-		let op_id = circuit.gates[idx].output_id;
-		let op_w = circuit.get_wire_by_id(op_id);
-		if op_w.output_gates.len() > 1 {
-			print!("(outputs to {} gates) ", op.w.output_gates.len());
+	and1s.iter().for_each(|g| {
+		let input_ids = circuit.get_gate_input_ids(g.borrow().idx);
+		let n = input_ids[0][1..=2].parse::<usize>().unwrap();
+		let n2 = input_ids[1][1..=2].parse::<usize>().unwrap();
+		if n != n2 {
+			panic!("input ids do not match");
 		}
-		if op_w.
+		g.borrow_mut().role = if n == 0 {
+			GateRole::AND
+		} else {
+			GateRole::AND1
+		};
+		g.borrow_mut().n = Some(n);
+	});
 
+	if and1s.len() != 45 {
+		println!("ERROR: Invalid number of AND1 gates. Expected 45, got {}", xor1s.len());
+	} else {
+		// we can label the rest of the AND gates
+		circuit.gates.iter().filter(|g| g.borrow().role == GateRole::UNK && g.borrow().op == Operation::AND).for_each(|g| {
+			g.borrow_mut().role = GateRole::AND2;
+		});
+	}
 
-	// check that sxor1_00 outputs directly to z0.
-	// let g = gates.get(valid_gates.iter().find("sxor1_00").unwrap()).unwrap();
-	// if g.output != "z00" {
-		// println!("sxor1_00 has incorrect output wire");
-	// }
-	// let _ = g;
+	// All OR gate have role GateRole::OR
+	circuit.gates.iter().filter(|g| g.borrow().op == Operation::OR).for_each(|g| {
+		g.borrow_mut().role = GateRole::OR;
+	});
 
-	// look at the OR gates
-	// inputs: cand1_n output, cand2_n output
-	// output: wire cn
-	// if the or gate has 1 wire from cand1_n as input, we can label it
-	// let cand1_wires = cand1.iter().map(|k| gates.get(k).unwrap().output).collect_vec();
-	// let mut g = gates.iter_mut()
-		// .filter(|(k,v)| v.op == Operation::OR && (cand1_wires.contains(&v.input_a) ^ cand1_wires.contains(&v.input_b))).collect_vec();
-	//g.iter_mut().for_each(|(k,v)| v.tags.push("cor_".to_string() + v.input_))
+	// All gates should have a role now
+	let unassigned = circuit.gates.iter().filter(|g| g.borrow().role == GateRole::UNK).collect_vec();
+	if unassigned.len() > 0 {
+		println!("ERROR: Some gates do not have a role!");
+		return (p1soln.to_string(), "unknown".to_string());
+	}
 
-	// cand1_00 should output directly to c00...
-	// cand1_01 to cand1_44 will have an OR cor,
-	// an AND cand2 (takes in cn_ and sxor1_n)
+	let mut dodgy_gates: Vec<Rc<RefCell<Gate>>> = vec![];
 
-	// sxor2 is the second xor gate in the sum calculation
-	// it takes sxor1_n and c_n-1 as input, and outputs to zn
-	// for sxor1_1 to sxor1_44
+	// find definitely invalid wires, by looking to see if gate output matches desired kind of gate output
+	//
+	println!("Finding definitely invalid gate outputs");
+	for g in circuit.gates.iter() {
+		let role = g.borrow().role;
+		let output_id = g.borrow().output_id.clone();
+		let mut is_dodgy = false;
+		match role {
+			GateRole::XOR => {
+				// inputs already checked
+				// test that output goes to z00
+				if g.borrow().output_id != "z00" {
+					is_dodgy = true;
+				}
+			},
+            GateRole::XOR1 => {
+				// inputs already checked
+				// test that output goes to XOR2 and AND2
+				let output_gates = circuit.get_wire_by_id(&output_id).unwrap().borrow().output_gates.clone();
+				let output_gate_roles = output_gates.iter().map(|og| og.borrow().role.clone()).collect_vec();
+				if output_gate_roles != vec![GateRole::XOR2, GateRole::AND2] && output_gate_roles != vec![GateRole::AND2, GateRole::XOR2] {
+					is_dodgy = true;
+				}
+			},
+			GateRole::XOR2 => {
+				// test XOR2 outputs to Z
+				if &g.borrow().output_id[0..1] != "z" {
+					is_dodgy = true;
+				}
+			},
+			GateRole::AND => {
+				// inputs already checked
+				// check outputs to XOR2 and AND2
+				let output_gates = circuit.get_wire_by_id(&output_id).unwrap().borrow().output_gates.clone();
+				let output_gate_roles = output_gates.iter().map(|og| og.borrow().role.clone()).collect_vec();
+				if output_gate_roles != vec![GateRole::XOR2, GateRole::AND2] && output_gate_roles != vec![GateRole::AND2, GateRole::XOR2] {
+					is_dodgy = true;
+				}
+			},
+			GateRole::AND1 => {
+				// inputs already checked
+				// check it outputs to OR gate
+				let output_gates = circuit.get_wire_by_id(&output_id).unwrap().borrow().output_gates.clone();
+				let output_gate_roles = output_gates.iter().map(|og| og.borrow().role.clone()).collect_vec();
+				if output_gate_roles != vec![GateRole::OR] {
+					is_dodgy = true;
+				}
+			},
+			GateRole::AND2 => {
+				// output must go to an OR gate
+				// check it outputs to OR gate
+				let output_gates = circuit.get_wire_by_id(&output_id).unwrap().borrow().output_gates.clone();
+				let output_gate_roles = output_gates.iter().map(|og| og.borrow().role.clone()).collect_vec();
+				if output_gate_roles != vec![GateRole::OR] {
+					is_dodgy = true;
+				}
+			},
+			GateRole::OR => {
+				// output must be either z45 or go to XOR2 and AND2
+				if output_id != "z45" {
+					let output_gates = circuit.get_wire_by_id(&output_id).unwrap().borrow().output_gates.clone();
+					let output_gate_roles = output_gates.iter().map(|og| og.borrow().role.clone()).collect_vec();
+					if output_gate_roles != vec![GateRole::XOR2, GateRole::AND2] && output_gate_roles != vec![GateRole::AND2, GateRole::XOR2] {
+						is_dodgy = true;
+					}
+				}
+			},
+			GateRole::UNK => { panic!("shouldn't be able to reach here"); },
+		}
+		if is_dodgy {
+			dodgy_gates.push(g.clone());
+			println!("dodgy! {} at idx {} with output_id {}", g.borrow().to_string(), g.borrow().idx, output_id);
+		}
+	}
+	println!("--- total {} dodgy gate outputs found ---", dodgy_gates.len());
 
+	let mut dodgy_ids = dodgy_gates.iter().map(|g| g.borrow().output_id.clone()).collect_vec();
+	dodgy_ids.sort();
+	let p2result = itertools::Itertools::intersperse(dodgy_ids.into_iter(), ",".to_string()).collect_vec();
+	let p2result_s: String = p2result.into_iter().collect();
+	println!("part 2 result: {}", p2result_s);
 
-	(p1soln.to_string(), "no result".to_string())
-
+	(p1soln.to_string(), p2result_s)
 }
