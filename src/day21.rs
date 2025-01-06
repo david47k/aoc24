@@ -1,5 +1,7 @@
 use itertools::Itertools;
 use crate::vector::{*};
+use std::io::Write;
+use std::collections::BTreeMap;
 
 // +---+---+---+
 // | 7 | 8 | 9 |
@@ -17,7 +19,121 @@ use crate::vector::{*};
 // | < | v | > |
 // +---+---+---+
 
+const MINIVEC_SIZE: usize = 6;
+#[derive(Copy,Clone)]
+struct MiniVec<T> {
+	data: [T; MINIVEC_SIZE],
+	len: usize,
+}
 
+impl<T: Copy> MiniVec<T> {
+	fn new(z: T) -> Self {
+		Self {
+			data: [ z; MINIVEC_SIZE ],
+			len: 0,
+		}
+	}
+	fn len(&self) -> usize {
+		self.len
+	}
+	fn push(&mut self, x: T) {
+		if self.len == MINIVEC_SIZE {
+			panic!("exceeded minivec size");
+		}
+		self.data[self.len] = x;
+		self.len += 1;
+	}
+	fn extend(&mut self, x: T, n: usize) {
+		for _ in 0..n {
+			self.push(x);
+		}
+	}
+	fn extend_m(&mut self, m: &MiniVec<T>) {
+		for i in 0..m.len() {
+			self.push(m.data[i]);
+		}
+	}
+	fn extend_s(&mut self, s: &[T]) {
+		for i in 0..s.len() {
+			self.push(s[i]);
+		}
+	}
+	fn to_vec(&self) -> Vec<T> {
+		let mut r: Vec<T> = vec![];
+		for i in 0..self.len {
+			r.push(self.data[i]);
+		}
+		r
+	}
+}
+	
+
+#[derive(Clone)]
+struct RobotChain {
+	pub robots: Vec<Robot>,
+	pub cache: BTreeMap<(Robot,char), MiniVec<char>>,
+	pub pcache: BTreeMap<(Vec<Robot>,Vec<char>), usize>,
+}
+
+impl RobotChain {
+	fn do_path(&mut self, c: char, depth: usize) -> usize {
+		let path: MiniVec<char>;
+
+		// do button_press			
+		path = self.robots[depth].button_press_2(c);
+
+		let new_depth = depth + 1;
+
+		if depth == 3 {
+			print!(".");
+			std::io::stdout().flush().unwrap();
+		}
+
+		// check if we are at max depth
+		if new_depth == self.robots.len() {
+			return path.len();
+		}
+			
+		// bubble up each character one at a time, to max depth
+		// sum the move count and bubble down
+		let mut count: usize = 0;
+			
+		if depth < self.robots.len() - 12 {			
+			for i in 0..path.len() {
+				count += self.do_path(path.data[i], new_depth);
+			}
+		} else {			
+			count = self.do_path_wide_cached(path.to_vec(), new_depth);
+		}
+										// return the total
+		count
+
+	}
+	fn do_path_wide_cached(&mut self, opath: Vec<char>, depth: usize) -> usize {
+		//let rdata: Vec<Robot> = self.robots[0..=depth].iter().cloned().collect_vec();
+		let rdata = vec![ self.robots[depth].clone() ];
+		if let Some(r) = self.pcache.get(&(rdata.clone(),opath.clone())) {
+			return r.to_owned();
+		}
+		
+		let mut path = opath.clone();
+		
+		// do button_press			
+		for d in depth..self.robots.len() {
+			let mut npath: Vec<char> = vec![];
+			for c in path {
+				npath.extend(self.robots[d].button_press(c));
+			}
+			path = npath;
+		}
+
+		// return cached path
+		self.pcache.insert((rdata,opath), path.len());
+		path.len()
+	}
+}
+
+#[derive(Clone,Copy,Ord,PartialOrd,Eq,PartialEq)]
 struct Robot {
 	pub posn: Vector,
 	pub control_type: ControlType,
@@ -30,7 +146,8 @@ enum Method {
 	V,
 }
 
-#[derive(Clone,Copy,PartialEq,Eq,Debug)]
+#[repr(u8)]
+#[derive(Clone,Copy,PartialEq,Eq,Debug,Ord,PartialOrd)]
 enum ControlType {
 	Numpad,
 	Directional,
@@ -77,11 +194,19 @@ impl Robot {
 			Self::c_to_v_directional(c)
 		}
 	}
-	pub fn button_press(&mut self, c: char, mut method: Method) -> Vec<char> {
+	pub fn button_press(&mut self, c: char) -> Vec<char> {
+		// best path is < , then ^/v, then >
+		// we condense this into simply method Vertical first or Across first		
 		let mut path: Vec<char> = vec![];
 		let dest = self.c_to_v(c);
-		let diff = dest.sub(&self.posn);
+		let diff = dest.sub(&self.posn);		
 		let nogo = self.no_go();
+		let mut method: Method;
+		if diff.0 < 0 {
+			method = Method::A;
+		} else {
+			method = Method::V;
+		}
 		// avoid passing the no-go zone
 		if self.posn.0 == nogo.0 && dest.1 == nogo.1 {
 			method = Method::A;
@@ -116,25 +241,59 @@ impl Robot {
 		path.push('A');
 		path
 	}
-	pub fn do_path(&mut self, path: &Vec<char>) -> Vec<char> {
-		let save = self.posn.clone();
-		let mut shortest_path: Vec<char> = vec![];
-		let mut shortest_path_len: usize = 100_000;
-		let mut shortest_end_posn = self.posn.clone();
-		for combo in [Method::A, Method::V].into_iter().combinations_with_replacement(path.len()) {
-			self.posn = save;
-			let mut new_path: Vec<char> = vec![];
-			for i in 0..path.len() {
-				new_path.extend( self.button_press(path[i], combo[i]) );
+	pub fn button_press_2(&mut self, c: char) -> MiniVec<char> {
+		// best path is < , then ^/v, then >
+		// we condense this into simply method Vertical first or Across first		
+		let mut path: MiniVec<char> = MiniVec::new('.');
+		let dest = self.c_to_v(c);
+		let diff = dest.sub(&self.posn);		
+		let nogo = self.no_go();
+		let mut method: Method;
+		if diff.0 < 0 {
+			method = Method::A;
+		} else {
+			method = Method::V;
+		}
+		// avoid passing the no-go zone
+		if self.posn.0 == nogo.0 && dest.1 == nogo.1 {
+			method = Method::A;
+		}
+		if self.posn.1 == nogo.1 && dest.0 == nogo.0 {
+			method = Method::V;
+		}
+		if method == Method::V { 	// go vertical first
+			if diff.1 < 0 {
+				path.extend('^', diff.1.abs() as usize);
+			} else {
+				path.extend('v', diff.1.abs() as usize);
 			}
-			if new_path.len() < shortest_path_len {
-				shortest_path = new_path;
-				shortest_path_len = shortest_path.len();
-				shortest_end_posn = self.posn.clone();
+			if diff.0 < 0 {
+				path.extend('<', diff.0.abs() as usize );
+			} else {
+				path.extend('>', diff.0.abs() as usize );
+			}
+		} else { 		// go horizontal first
+			if diff.0 < 0 {
+				path.extend('<', diff.0.abs() as usize );
+			} else {
+				path.extend('>', diff.0.abs() as usize );
+			}
+			if diff.1 < 0 {
+				path.extend('^', diff.1.abs() as usize)
+			} else {
+				path.extend('v', diff.1.abs() as usize)
 			}
 		}
-		self.posn = shortest_end_posn;
-		shortest_path
+		self.posn = dest;
+		path.push('A');
+		path
+	}
+	pub fn do_path(&mut self, path: &Vec<char>) -> Vec<char> {
+		let mut new_path: Vec<char> = vec![];
+		for i in 0..path.len() {
+			new_path.extend( self.button_press(path[i]) );
+		}
+		new_path
 	}
 	pub fn new(control_type: ControlType) -> Self {
 		let v = if control_type == ControlType::Numpad {
@@ -157,20 +316,62 @@ pub fn day21(input: &String) -> (String, String) {
 	let mut robot1 = Robot::new(ControlType::Numpad);
 	let mut robot2 = Robot::new(ControlType::Directional);
 	let mut robot3 = Robot::new(ControlType::Directional);
+	let mut robot_chain = RobotChain {
+		robots: vec![robot1, robot2, robot3],
+		cache: BTreeMap::new(),
+		pcache: BTreeMap::new(),
+	};
 	let mut p1soln: usize = 0;
 	for (i,&ref code) in codes.iter().enumerate() {
-		let p1 = robot1.do_path(code);
-		//println!("path1: {}", path_to_string(&p1));
-		let p2 = robot2.do_path(&p1);
-		//println!("path2: {}", path_to_string(&p2));
-		let path = robot3.do_path(&p2);
-		println!("path for {} of length {}: {}", codes_s[i], path.len(), path_to_string(&path));
+		// let p1 = robot1.do_path(code);
+		// println!("path1: {}", path_to_string(&p1));
+		// let p2 = robot2.do_path(&p1);
+		// println!("path2: {}", path_to_string(&p2));
+		// let path = robot3.do_path(&p2);		
+		// println!("path for {} of length {}: {}", codes_s[i], path.len(), path_to_string(&path));
+		let mut count = 0;
+		for c in code.iter() {
+			print!("processing '{}'", c);
+			count += robot_chain.do_path(*c, 0);
+			println!();
+		}
+		println!("path for {} of length {}", codes_s[i], count);
 		let n1 = codes_s[i][0..3].parse::<usize>().unwrap();
-		let complexity: usize = path.len() * (codes_s[i][0..3]).parse::<usize>().unwrap();
-		println!("complexity {} * {}: {}", n1, path.len(), complexity);
+		let complexity: usize = count * (codes_s[i][0..3]).parse::<usize>().unwrap();
+		println!("complexity {} * {}: {}", n1, count, complexity);
 		p1soln += complexity;
 	}
 
 	println!("part 1 solution: {}", p1soln);
-	(p1soln.to_string(), "no part 2 solution".to_string())
+	
+	println!("part 2");
+	
+	// build a robot chain
+	
+	let mut robot_vec = vec![ Robot::new(ControlType::Numpad) ];
+	robot_vec.extend(vec![ Robot::new(ControlType::Directional); 25]);
+	let mut robot_chain = RobotChain {
+		robots: robot_vec,
+		cache: BTreeMap::new(),
+		pcache: BTreeMap::new(),
+	};
+
+	let mut p2soln: usize = 0;
+	for (i,&ref code) in codes.iter().enumerate() {
+		let mut count = 0;
+		for c in code.iter() {
+			print!("processing '{}'", c);
+			count += robot_chain.do_path(*c, 0);
+			println!();
+		}
+		println!("path for {} of length {}", codes_s[i], count);
+		let n1 = codes_s[i][0..3].parse::<usize>().unwrap();
+		let complexity: usize = count * (codes_s[i][0..3]).parse::<usize>().unwrap();
+		println!("complexity {} * {}: {}", n1, count, complexity);
+		p2soln += complexity;
+	}
+	
+	println!("part 2 solution: {}", p2soln);
+	
+	(p1soln.to_string(), p2soln.to_string())
 }
