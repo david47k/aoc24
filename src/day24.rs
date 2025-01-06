@@ -149,7 +149,7 @@ impl Circuit {
 			// println!("gates processed: {}", gates_processed);
 		}
 	}
-	fn set_input(&mut self, input_x: u64, input_y: u64) {
+	fn _set_input(&mut self, input_x: u64, input_y: u64) {
 		// check input is in range
 		assert!(input_x <= (1 << 44));
 		assert!(input_y <= (1 << 44));
@@ -175,7 +175,7 @@ impl Circuit {
 		// find solution
 		outputs.iter().enumerate().map(|(i, k)| ((k.1.unwrap() as u64) << i)).sum()
 	}
-	fn get_input_x(&self) -> u64 {	// for testing
+	fn _get_input_x(&self) -> u64 {	// for testing
 		// get all the x wires
 		let mut outputs = self.wires.iter().filter(|&ref k| k.borrow().id.chars().nth(0)==Some('x')).map(|&ref k| (k.borrow().id.clone(), k.borrow().value)).collect_vec();
 		// sort them
@@ -183,7 +183,7 @@ impl Circuit {
 		// find solution
 		outputs.iter().enumerate().map(|(i, k)| ((k.1.unwrap() as u64) << i)).sum()
 	}
-	fn get_input_y(&self) -> u64 {	// for testing
+	fn _get_input_y(&self) -> u64 {	// for testing
 		// get all the y wires
 		let mut outputs = self.wires.iter().filter(|&ref k| k.borrow().id.chars().nth(0)==Some('y')).map(|&ref k| (k.borrow().id.clone(), k.borrow().value)).collect_vec();
 		// sort them
@@ -191,13 +191,13 @@ impl Circuit {
 		// find solution
 		outputs.iter().enumerate().map(|(i, k)| ((k.1.unwrap() as u64) << i)).sum()
 	}
-	fn very_basic_test(&mut self, expected: u64) -> bool {
+	fn _very_basic_test(&mut self, expected: u64) -> bool {
 		// self.set_input(a,b);
 		//self.reset();
 		self.run_calculation();
 		self.get_output() == expected
 	}
-	fn swap_gate_outputs(&self, a: Rc<RefCell<Gate>>, b: Rc<RefCell<Gate>>) {
+	fn _swap_gate_outputs(&self, a: Rc<RefCell<Gate>>, b: Rc<RefCell<Gate>>) {
 		let av = a.borrow().output_id.clone();
 		let bv = b.borrow().output_id.clone();
 		b.borrow_mut().output_id = av;
