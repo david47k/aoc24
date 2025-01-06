@@ -134,10 +134,10 @@ fn gen_test_data() -> Vec<(usize,String,(String, String))> {
         ( 18,   "ex18.txt",  ("146", "no solution found") ),
         ( 19,   "ex19.txt",  ("6", "16") ),
         ( 20,   "ex20.txt",  ("0", "0") ),  // not a great test
-        ( 21,   "ex21.txt",  ("126384", "154115708116294") ),  // not a great test
-        //( 22,   "ex22.txt",  ("37327623", "") ),
+        ( 21,   "ex21.txt",  ("126384", "154115708116294") ),
+        ( 22,   "ex22.txt",  ("37327623", "24") ),
         ( 23,   "ex23.txt",  ("7", "co,de,ka,ta") ),
-        //( 24,   "ex24.txt",  ("", "") ),
+        ( 24,   "ex24.txt",  ("2024", "unknown") ), // not a great test
         ( 25,   "ex25.txt",  ("3", "no result") ),
     ];
     d.into_iter().map(|(day,fname,(result1,result2))| (day,fname.to_string(),(result1.to_string(), result2.to_string()))).collect_vec()

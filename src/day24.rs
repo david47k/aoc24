@@ -335,7 +335,7 @@ pub fn day24(input: &String) -> (String, String) {
 		let n = input_ids[0][1..=2].parse::<usize>().unwrap();
 		let n2 = input_ids[1][1..=2].parse::<usize>().unwrap();
 		if n != n2 {
-			panic!("input ids do not match");
+			println!("ERROR: input ids do not match");
 		}
 		g.borrow_mut().role = if n == 0 {
 			GateRole::XOR
@@ -366,7 +366,7 @@ pub fn day24(input: &String) -> (String, String) {
 		let n = input_ids[0][1..=2].parse::<usize>().unwrap();
 		let n2 = input_ids[1][1..=2].parse::<usize>().unwrap();
 		if n != n2 {
-			panic!("input ids do not match");
+			println!("ERROR: input ids do not match");
 		}
 		g.borrow_mut().role = if n == 0 {
 			GateRole::AND

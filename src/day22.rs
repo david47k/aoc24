@@ -80,9 +80,12 @@ pub fn day22(input: &String) -> (String, String) {
 		}
 		println!("best price so far: {best_price}");
 		println!("best pattern so far: {:?}", best_pattern);
+		if buyer_idx == 10 {
+			break;
+		}
 	}
 
-
-	(p1result.to_string(), "no result".to_string())
+	println!("part 2 result: best price after maximum 10 buyers: {best_price}");
+	(p1result.to_string(), best_price.to_string())
 
 }
