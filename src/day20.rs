@@ -18,7 +18,7 @@ pub fn day20(input: &String) -> (String, String) {
     println!("level w: {}, h: {}", level.w, level.h);
     println!("{}", level.to_string());
     let max_depth: u64 = crate::stackstack::STACKSTACK64_MAX as u64 * 32;
-    let soln = find_best_path_18(&level, max_depth, None);
+    let soln = find_best_path_18(&level, max_depth);
 
     if let Some(ref sol) = soln {
         println!("Basic solution found!");

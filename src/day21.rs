@@ -87,7 +87,7 @@ impl RobotChain {
 		// sum the move count and bubble down
 		let mut count: usize = 0;
 
-		if depth < self.robots.len() - 12 {
+		if self.robots.len() < 12 || depth < self.robots.len() - 12 {
 			for i in 0..path.len() {
 				count += self.do_path(path.data[i], new_depth);
 			}

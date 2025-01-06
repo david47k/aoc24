@@ -148,7 +148,7 @@ struct NodeData18 {
 	pub path: ShrunkPath,	// path to reach this point
 }
 
-pub fn find_best_path_18(level: &Level, max_depth: u64, callback: Option<fn(&Level,&ShrunkPath,u64)>) -> Option<Solution> {
+pub fn find_best_path_18(level: &Level, max_depth: u64) -> Option<Solution> {
 	let mut depth: u64 = 0;
 	let mut max_depth_hit = false;
 	let mut nodes: BTreeMap<NodeID18,NodeData18> = BTreeMap::new();
@@ -166,9 +166,7 @@ pub fn find_best_path_18(level: &Level, max_depth: u64, callback: Option<fn(&Lev
 			if id.p == level.end_pos {
 				//println!("\nsolution found with score {} at depth {}", data.s, depth);
 				//println!("path: {}", data.path.to_string());
-				if let Some(f) = callback {
-					f(level, &data.path, depth);
-				}
+
 				if solutions.len() == 0 || data.s < solutions[0].1.s {
 					solutions = [(*id, data.clone())].to_vec();
 					//println!("--> best solution so far!");
