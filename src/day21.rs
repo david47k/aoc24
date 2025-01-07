@@ -19,8 +19,8 @@ use std::collections::BTreeMap;
 // | < | v | > |
 // +---+---+---+
 
-const MINIVEC_SIZE: usize = 6;
-#[derive(Copy,Clone)]
+const MINIVEC_SIZE: usize = 5;
+#[derive(Copy,Clone,Ord,PartialOrd,Eq,PartialEq,Debug)]
 struct MiniVec<T> {
 	data: [T; MINIVEC_SIZE],
 	len: usize,
@@ -29,12 +29,9 @@ struct MiniVec<T> {
 impl<T: Copy> MiniVec<T> {
 	fn new(z: T) -> Self {
 		Self {
-			data: [ z; MINIVEC_SIZE ],
+			data: [ z; MINIVEC_SIZE ], // unsafe { std::mem::MaybeUninit::uninit().assume_init() },
 			len: 0,
 		}
-	}
-	fn len(&self) -> usize {
-		self.len
 	}
 	fn push(&mut self, x: T) {
 		if self.len == MINIVEC_SIZE {
@@ -61,7 +58,7 @@ impl<T: Copy> MiniVec<T> {
 #[derive(Clone)]
 struct RobotChain {
 	pub robots: Vec<Robot>,
-	pub pcache: BTreeMap<(Vec<Robot>,Vec<char>), usize>,
+	pub pcache: BTreeMap<(Robot,MiniVec<char>), usize>,
 }
 
 impl RobotChain {
@@ -73,14 +70,9 @@ impl RobotChain {
 
 		let new_depth = depth + 1;
 
-		if depth == 3 {
-			print!(".");
-			std::io::stdout().flush().unwrap();
-		}
-
 		// check if we are at max depth
 		if new_depth == self.robots.len() {
-			return path.len();
+			return path.len;
 		}
 
 		// bubble up each character one at a time, to max depth
@@ -88,36 +80,35 @@ impl RobotChain {
 		let mut count: usize = 0;
 
 		if self.robots.len() < 12 || depth < self.robots.len() - 12 {
-			for i in 0..path.len() {
+			for i in 0..path.len {
 				count += self.do_path(path.data[i], new_depth);
 			}
 		} else {
-			count = self.do_path_wide_cached(path.to_vec(), new_depth);
+			count = self.do_path_wide_cached(&path, new_depth);
 		}
 										// return the total
 		count
 
 	}
-	fn do_path_wide_cached(&mut self, opath: Vec<char>, depth: usize) -> usize {
-		//let rdata: Vec<Robot> = self.robots[0..=depth].iter().cloned().collect_vec();
-		let rdata = vec![ self.robots[depth].clone() ];
+	fn do_path_wide_cached(&mut self, opath: &MiniVec<char>, depth: usize) -> usize {
+		let rdata = self.robots[depth];
 		if let Some(r) = self.pcache.get(&(rdata.clone(),opath.clone())) {
 			return r.to_owned();
 		}
 
-		let mut path = opath.clone();
+		let mut path = opath.to_vec();
 
 		// do button_press
 		for d in depth..self.robots.len() {
 			let mut npath: Vec<char> = vec![];
-			for c in path {
-				npath.extend(self.robots[d].button_press(c));
+			for c in path.into_iter() {
+				self.robots[d].button_press_3(c, &mut npath);
 			}
 			path = npath;
 		}
 
 		// return cached path
-		self.pcache.insert((rdata,opath), path.len());
+		self.pcache.insert((rdata,opath.clone()), path.len());
 		path.len()
 	}
 }
@@ -276,6 +267,51 @@ impl Robot {
 		self.posn = dest;
 		path.push('A');
 		path
+	}
+	pub fn button_press_3(&mut self, c: char, path: &mut Vec::<char>) {
+		// best path is < , then ^/v, then >
+		// we condense this into simply method Vertical first or Across first
+		let dest = self.c_to_v(c);
+		let diff = dest.sub(&self.posn);
+		let nogo = self.no_go();
+		let mut method: Method;
+		if diff.0 < 0 {
+			method = Method::A;
+		} else {
+			method = Method::V;
+		}
+		// avoid passing the no-go zone
+		if self.posn.0 == nogo.0 && dest.1 == nogo.1 {
+			method = Method::A;
+		}
+		if self.posn.1 == nogo.1 && dest.0 == nogo.0 {
+			method = Method::V;
+		}
+		if method == Method::V { 	// go vertical first
+			if diff.1 < 0 {
+				path.extend(vec!['^'; diff.1.abs() as usize]);
+			} else {
+				path.extend(vec!['v'; diff.1.abs() as usize]);
+			}
+			if diff.0 < 0 {
+				path.extend(vec!['<'; diff.0.abs() as usize] );
+			} else {
+				path.extend(vec!['>'; diff.0.abs() as usize] );
+			}
+		} else { 		// go horizontal first
+			if diff.0 < 0 {
+				path.extend(vec!['<'; diff.0.abs() as usize] );
+			} else {
+				path.extend(vec!['>'; diff.0.abs() as usize] );
+			}
+			if diff.1 < 0 {
+				path.extend(vec!['^'; diff.1.abs() as usize])
+			} else {
+				path.extend(vec!['v'; diff.1.abs() as usize])
+			}
+		}
+		self.posn = dest;
+		path.push('A');
 	}
 	pub fn _do_path(&mut self, path: &Vec<char>) -> Vec<char> {
 		let mut new_path: Vec<char> = vec![];
