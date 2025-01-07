@@ -332,6 +332,8 @@ pub fn day21(input: &String) -> (String, String) {
 
 	println!("part 1 solution: {}", p1soln);
 
+	let t0 = crate::time::get_time_ms();
+
 	println!("part 2");
 
 	// build a robot chain
@@ -358,7 +360,9 @@ pub fn day21(input: &String) -> (String, String) {
 		p2soln += complexity;
 	}
 
+	let t1 = crate::time::get_time_ms();
 	println!("part 2 solution: {}", p2soln);
+	println!("time for part 2 : {:.0} ms", t1 - t0);
 
 	(p1soln.to_string(), p2soln.to_string())
 }
