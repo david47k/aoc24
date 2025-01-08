@@ -28,6 +28,8 @@ pub fn day09(input: &String) -> (String,String) {
 
     println!("disk size (blocks): {0}", blocks.len());
 
+    println!("part 1 calculating...");
+
     // find the last block with a file, and the first block that is empty
     let mut last_idx = blocks.len() - 1;
     let mut free_idx = blocks.iter().take(last_idx - 1).position(|&b| b==None);
@@ -56,6 +58,9 @@ pub fn day09(input: &String) -> (String,String) {
     let checksum1 = checksum;
 
     // part two
+
+    println!("part 2 calculating...");
+
     // Attempt to move each file exactly once in order of decreasing file ID number
     // This time we'll store as segments
     let mut segs: Vec<Segment> = vec![];

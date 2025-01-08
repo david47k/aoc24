@@ -39,7 +39,9 @@ pub fn day15(input: &String) -> (String, String) {
 	let moves: Vec<Move> = moves_m.iter().flatten().filter(|&&c| c=='^' || c=='>' || c=='v' || c=='<').map(|&c| Move::from_char_unchecked(c)).collect_vec();
 
 	println!("robot moves: {}", moves.len());
-	println!("grid w: {}, h: {}, initial position:\n{}", grid.w, grid.h, grid.to_string());
+	println!("grid w: {}, h: {}", grid.w, grid.h);
+	// println!("initial position:\n{}", grid.to_string());
+	println!("part 1 calculating...");
 
 	// find robot
 	let mut robot_xy = grid.find(b'@')[0];
@@ -59,12 +61,12 @@ pub fn day15(input: &String) -> (String, String) {
 		}
 	}
 
-	println!("\nfinal position:\n{}", grid.to_string());
+	// println!("\nfinal position:\n{}", grid.to_string());
 	// calculate GPS score -- sum of each box's (100*by+bx)
 	let score: i32 = grid.find(b'O').iter().map(|v| v.0 + v.1 * 100).sum();
 	println!("part one score: {}", score);
 
-
+	println!("part 2 calculating...");
 
 	// part two
 	// ddoouubbllee  wwiiddtthh
@@ -83,8 +85,7 @@ pub fn day15(input: &String) -> (String, String) {
 	}
 
 	let mut grid = Grid { w: w as i32 * 2, h: (ndata.len() / (w * 2)) as i32, data: ndata };
-	println!("\npart two\n");
-	println!("grid w: {}, h: {}, initial position:\n{}", grid.w, grid.h, grid.to_string());
+	println!("grid w: {}, h: {}", grid.w, grid.h);
 
 	// find robot
 	let mut robot_xy = grid.find(b'@')[0];
@@ -131,7 +132,7 @@ pub fn day15(input: &String) -> (String, String) {
 		//print!("{} ok. ", m.to_string());
 	}
 
-	println!("\nfinal position:\n{}", grid.to_string_with_pt(&robot_xy));
+	//println!("\nfinal position:\n{}", grid.to_string_with_pt(&robot_xy));
 	// calculate GPS score -- sum of each box's (100*by+bx)
 	// NEAREST edge...
 	let score2: i64 = grid.find(b'[').iter().map(|v| (v.0 as i64) + v.1  as i64 * 100_i64 ).sum();

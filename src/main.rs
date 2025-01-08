@@ -66,8 +66,11 @@ fn main() {
         runsheet.push((day, fname, ("0".to_string(), "0".to_string())));
     }
 
+    let t0 = crate::time::get_time_ms();
+
     for (day,fname,eresult) in runsheet.iter() {
-        println!("\nRunning day {day}:\n");
+        println!("\n--[ day {:02} running ]--------------------", day);
+
         let input: String = std::fs::read_to_string(fname).expect("should be able to read file");
 
         let result: (String, String) = match day {
@@ -101,27 +104,30 @@ fn main() {
         if test || test2 {
             if result == *eresult {
                 tests_passed += 1;
-                println!("\n=== DAY {:2} TEST PASSED ===", day);
-                println!("part 1: {:?}", result.0);
-                println!("part 2: {:?}", result.1);
-                println!("==========================");
+                println!("\n--[ day {:02} test passed ]---------------- ✔️", day);
+                println!("part 1: {}", result.0);
+                println!("part 2: {}", result.1);
+                println!();
             } else {
-                println!("\n=== DAY {:2} TEST FAILED ===", day);
+                println!("\n--[ day {:02} test failed ]---------------- ❌", day);
                 println!("expected: {:?}", *eresult);
                 println!("got:      {:?}", result);
-                println!("==========================");
+                println!();
             }
         } else {
-            println!("\n=== DAY {:2} RESULTS ===", day);
-            println!("part 1: {:?}", result.0);
-            println!("part 2: {:?}", result.1);
-            println!("==========================");
+            println!("\n--[ day {:02} results ]--------------------", day);
+            println!("part 1: {}", result.0);
+            println!("part 2: {}", result.1);
         }
     }
+    let t1 = crate::time::get_time_ms();
     if test || test2 {
-        println!("\nTests conducted : {:2}", runsheet.len());
-        println!("Tests failed    : {:2}\n", runsheet.len() - tests_passed);
+        let ok = tests_passed == runsheet.len();
+        println!("\n--[ overall test results ]-------------- {}", if ok { "✔️" } else { "❌" } );
+        println!("\ntests conducted: {:2}", runsheet.len());
+        println!("tests failed   : {:2}", runsheet.len() - tests_passed);
     }
+    println!("time: {:.3} s", (t1 - t0) / 1000.0);
 }
 
 fn gen_test_data() -> Vec<(usize,String,(String, String))> {

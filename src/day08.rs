@@ -9,7 +9,7 @@ pub fn day08(input: &String) -> (String,String) {
 
     // read input into grid
     let grid = Grid::from_str(input);
-    println!("grid w {0} h {1}", grid.w, grid.h);
+    //println!("grid w {0} h {1}", grid.w, grid.h);
 
     let mut antinodes = vec![];
 

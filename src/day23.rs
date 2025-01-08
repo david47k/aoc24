@@ -24,7 +24,7 @@ pub fn day23(input: &String) -> (String, String) {
 		}
 	}
 
-	println!("day 23 part 1");
+	println!("part 1 calculating...");
 	// println!("nodes len: {}", nodes.len());
 	// for (k,v) in &nodes {
 	// 	println!("{}: {}", nid2s(k), v.conns.len())
@@ -76,7 +76,7 @@ pub fn day23(input: &String) -> (String, String) {
 
 	// part 2
 
-	println!("day 23 part 2");
+	println!("part 2 calculating...");
 
 	// find the largest set
 	// every computer in the set is joined to every other computer in the set...

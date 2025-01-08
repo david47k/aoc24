@@ -6,7 +6,8 @@ pub fn day06(input: &String) -> (String,String) {
 
     let h = rows.len();
     let w = rows[0].len();
-    println!("w: {w} h: {h}");
+
+    println!("part 1 calculating...");
 
     // define directions using a bitmask
     const UP: u8 = 1u8;
@@ -40,7 +41,7 @@ pub fn day06(input: &String) -> (String,String) {
     if gx == -1 {
         panic!("failed to locate guard");
     }
-    println!("gx: {gx} gy: {gy}");
+    //println!("gx: {gx} gy: {gy}");
 
     // save guard start location and direction for part two
     let gs = (gx as usize,gy as usize);
@@ -102,7 +103,8 @@ pub fn day06(input: &String) -> (String,String) {
 
     // how many positions the guard visited
     let v = visited.iter().flatten().collect::<Vec<&u8>>().iter().filter(|v| ***v != 0).count();
-    println!("part one: {v}");
+    //println!("part one: {v}");
+    println!("part 2 calculating...");
 
     // part two
     // place an obstruction on the guards existing path (i.e. in visited above) but not the starting position
@@ -121,7 +123,7 @@ pub fn day06(input: &String) -> (String,String) {
     }).flatten().filter(|d| d.is_some()).map(|d| d.unwrap()).collect();
 
     //println!("sites: {sites:?}");
-    println!("sites len: {0:?}", sites.len());
+    //println!("sites len: {0:?}", sites.len());
 
     // remove guard start position
     let sites: Vec<&(usize, usize)> = sites.iter().filter(|&&d| d != gs).collect();

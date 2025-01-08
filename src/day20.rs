@@ -16,7 +16,7 @@ pub fn day20(input: &String) -> (String, String) {
     //let mut best_score: u64 = 0;
     let mut best_path_pts: Vec<Vector> = vec![];
     println!("level w: {}, h: {}", level.w, level.h);
-    println!("{}", level.to_string());
+    //println!("{}", level.to_string());
     let max_depth: u64 = crate::stackstack::STACKSTACK64_MAX as u64 * 32;
     let soln = find_best_path_18(&level, max_depth);
 
@@ -66,7 +66,7 @@ pub fn day20(input: &String) -> (String, String) {
 
     // part 2
 
-    println!("part 2");
+    println!("part 2 calculating...");
 
     // now the cheat can be VERY long
     // we are looking for cheats that save at least 100ps

@@ -98,7 +98,8 @@ pub fn day17(input: &String) -> (String, String) {
 	// read in input
 	let re = regex::Regex::new(r"(-?\d+)").expect("valid regex");
 	let caps: Vec<u64> = re.find_iter(input).map(|m| m.as_str().parse::<u64>().unwrap()).collect_vec();
-	println!("{:?}", caps);
+
+	println!("part 1 calculating...");
 
 	// initialise computer
 	let program = caps[3..].iter().map(|&u| u as u8).collect_vec();
@@ -118,7 +119,7 @@ pub fn day17(input: &String) -> (String, String) {
 	let part1_output = part1_output.trim_end_matches(",");
 	println!("output: {}", part1_output);
 
-	println!("--- part two ---");
+	println!("part 2 calculating...");
 
 	// initialise computer
 

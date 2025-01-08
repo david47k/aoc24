@@ -163,7 +163,7 @@ pub fn day19(input: &String) -> (String, String) {
 	println!("min tp len: {}", min_len);
 	println!("patterns: {}", patterns.len());
 
-	println!("part 1");
+	println!("part 1 calculating...");
 
 	let mut p1score = 0;
 	for &p in patterns.iter() {
@@ -176,7 +176,7 @@ pub fn day19(input: &String) -> (String, String) {
 
 	// part 2
 
-	println!("part 2");
+	println!("part 2 calculating...");
 
 	let mut p2score = 0;
 	let mut solver = Solver::new(&tps);

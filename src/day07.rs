@@ -8,6 +8,8 @@ pub fn day07(input: &String) -> (String,String) {
         return nums.iter().map(|ns| ns.parse::<usize>().expect("number")).collect();        // convert to numbers
     }).collect();
 
+    println!("part 1 calculating...");
+
     // evaluate the equation left to right, operators are + or *
     // we want to know which lines could be valid, and sum those totals
     let valid_data: Vec<Vec<usize>> = data.clone().into_iter().filter(|r| {
@@ -45,6 +47,7 @@ pub fn day07(input: &String) -> (String,String) {
 
     let valid_sum1: usize = valid_data.iter().map(|r| r[0]).sum();
     println!("part one sum: {valid_sum1}");
+    println!("part 2 calculating...");
 
     // part two
     let valid_data: Vec<Vec<usize>> = data.into_iter().filter(|r| {

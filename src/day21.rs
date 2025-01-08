@@ -276,7 +276,7 @@ impl Robot {
 pub fn day21(input: &String) -> (String, String) {
 	let codes_s: Vec<&str> = input.lines().collect_vec();
 	let codes: Vec<Vec<char>> = input.lines().map(|l| l.chars().collect()).collect();
-	println!("part 1");
+	println!("part 1 calculating...");
 	let robot1 = Robot::new(ControlType::Numpad);
 	let robot2 = Robot::new(ControlType::Directional);
 	let robot3 = Robot::new(ControlType::Directional);
@@ -286,7 +286,7 @@ pub fn day21(input: &String) -> (String, String) {
 	};
 	let mut p1soln: usize = 0;
 	for (i,&ref code) in codes.iter().enumerate() {
-		println!("processing '{}'...",  codes_s[i]);
+		println!("'{}'...",  codes_s[i]);
 		let mut count = 0;
 		for c in code.iter() {
 			count += robot_chain.do_path(*c, 0);
@@ -301,7 +301,7 @@ pub fn day21(input: &String) -> (String, String) {
 
 	let t0 = crate::time::get_time_ms();
 
-	println!("part 2");
+	println!("part 2 calculating...");
 
 	// build a robot chain
 
@@ -315,7 +315,7 @@ pub fn day21(input: &String) -> (String, String) {
 	let mut p2soln: usize = 0;
 	for (i,&ref code) in codes.iter().enumerate() {
 		let mut count = 0;
-		println!("processing '{}'...", codes_s[i]);
+		println!("'{}'...", codes_s[i]);
 		for c in code.iter() {
 			count += robot_chain.do_path(*c, 0);
 		}

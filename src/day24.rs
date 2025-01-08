@@ -93,9 +93,9 @@ impl Gate {
 	pub fn to_string(&self) -> String {
 		let mut s = String::new();
 		if self.role == GateRole::UNK {
-			s.push_str(&format!("gate UNK (op={}, n={:?})", self.op.to_string(), self.n));
+			s.push_str(&format!("UNK (op={}, n={:?})", self.op.to_string(), self.n));
 		} else {
-			s.push_str(&format!("gate {} (n={:?})", self.role.to_string(), self.n));
+			s.push_str(&format!("{} (n={:?})", self.role.to_string(), self.n));
 		}
 		s
 	}
@@ -293,12 +293,10 @@ pub fn day24(input: &String) -> (String, String) {
 	
 	// analyse gate types and wire types
 
-	println!("\ngate types: ");
 	let gate_types = circuit.gates.iter().map(|g| g.borrow().op.to_string()).collect_vec();
 	let gate_counts = gate_types.iter().map(|k| (k,1)).into_group_map();
-	for (k,v) in &gate_counts {
-		println!("{}: {}", k, v.iter().sum::<i32>());
-	}
+	let s: String = itertools::Itertools::intersperse(gate_counts.iter().map(|(k,v)| format!("{}={}", k, v.iter().sum::<i32>())), ",".to_string()).collect();
+	println!("gate types: {}", s);
 
 	let wire_ids = circuit.wires.iter().map(|a| a.borrow().id.chars().map(|c| c).collect_vec()).collect_vec();
 	let non_input_wires = wire_ids.iter().enumerate().filter(|(_i,wid)| wid[0] != 'x' && wid[0] != 'y').collect_vec();
@@ -401,7 +399,7 @@ pub fn day24(input: &String) -> (String, String) {
 
 
 	// find definitely invalid wires, by looking to see if gate output matches desired kind of gate output
-	println!("Finding definitely invalid gate outputs");
+	println!("Finding invalid gate outputs...");
 	let mut dodgy_gates: Vec<Rc<RefCell<Gate>>> = vec![];
 
 	for g in circuit.gates.iter() {
@@ -467,11 +465,11 @@ pub fn day24(input: &String) -> (String, String) {
 		}
 		if is_dodgy {
 			dodgy_gates.push(g.clone());
-			println!("dodgy! {} at idx {} with output_id {}", g.borrow().to_string(), g.borrow().idx, output_id);
+			println!("invalid output for gate {} at idx {} with output wire {}", g.borrow().to_string(), g.borrow().idx, output_id);
 		}
 	}
 
-	println!("--- total {} dodgy gate outputs found ---", dodgy_gates.len());
+	println!("Invalid gate outputs found: {}", dodgy_gates.len());
 
 	let mut dodgy_ids = dodgy_gates.iter().map(|g| g.borrow().output_id.clone()).collect_vec();
 	dodgy_ids.sort();

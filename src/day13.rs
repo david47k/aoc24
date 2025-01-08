@@ -58,7 +58,7 @@ pub fn day13(input: &String) -> (String,String) {
         }
     }
 
-    println!("part one total cost: {total_cost}");
+    //println!("part one total cost: {total_cost}");
 
     // part two
     let mut total_cost_two: usize = 0;

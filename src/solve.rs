@@ -59,7 +59,7 @@ pub fn find_best_path_16(level: &Level, max_depth: u64) -> Option<Solution> {
 				//println!("path: {}", data.path.to_string());
 				if solutions.len() == 0 || data.s < solutions[0].1.s {
 					solutions = [(*id, data.clone())].to_vec();
-					println!("best solution so far found with score {} at depth {}", data.s, depth);
+					println!("score {} found at depth {}", data.s, depth);
 				} else if data.s == solutions[0].1.s {
 					solutions.push((*id, data.clone()));
 					//println!("--> additional best solution!");

@@ -16,7 +16,7 @@ pub fn day14(input: &String) -> (String, String) {
 	let re = regex::Regex::new(r"(-?\d+)").expect("valid regex");
 	let caps: Vec<isize> = re.find_iter(input).map(|m| m.as_str().parse::<isize>().unwrap()).collect_vec();
 	let (w,h) = (caps[0], caps[1]);
-	println!("w: {w}, h: {h}");
+	//println!("w: {w}, h: {h}");
 
 	let robot_desc = &caps[2..caps.len()];
 	let mut robots: Vec<Robot> = vec![];
@@ -57,7 +57,7 @@ pub fn day14(input: &String) -> (String, String) {
 	}
 
 	let p1_result: usize = quads.iter().product();
-	println!("part one result: {}", p1_result);
+	println!("part 1 result: {}", p1_result);
 
 	// part two
 	// now we have to actually look at the grid !!!
@@ -65,6 +65,8 @@ pub fn day14(input: &String) -> (String, String) {
 	// middle vertical third of the grid had a much higher density of robots than expected
 	// i.e. > 2/3, and scrolling through a few pages of output. the discovered value from
 	// that method was too high, but it showed us what to look for!
+
+	println!("part 2 calculating...");
 
 	let mut p2_result = 0_usize;
 
@@ -79,13 +81,13 @@ pub fn day14(input: &String) -> (String, String) {
 		}
 		let s = grid.to_string();
 		if s[0..s.len()/2].contains("##########################") {
-			println!("=== t={} ===", t);
-			println!("{}", grid.to_string());
+			println!("part 2 result: {}", t);
+			//println!("{}", grid.to_string());
 			p2_result = t as usize;
 			break;
 		}
 		if t % 1000 == 0 {
-			println!("--- t={} ---", t);
+			//println!("--- t={} ---", t);
 		}
 	}
 
