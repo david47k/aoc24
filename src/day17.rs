@@ -125,7 +125,7 @@ pub fn day17(input: &String) -> (String, String) {
 	let solution: Option<u64>;
 	let mut c = Computer::new(program.clone());
 
-	println!("desired program: {:?}", c.program);
+	//println!("desired program: {:?}", c.program);
 
 	// after actually looking at the program
 	// we need to build A 3 bits at a time
@@ -160,9 +160,9 @@ pub fn day17(input: &String) -> (String, String) {
 				break;
 			}
 		}
-		println!("desired program: {:?}", c.program);
-		println!("a:               {:?}", a_components);		
-		println!("output:          {:?}", c.output);
+		//println!("desired program: {:?}", c.program);
+		//println!("a:               {:?}", a_components);
+		//println!("output:          {:?}", c.output);
 
 		if c.output.len() == plen && c.output[plen-1-n] == program[plen-1-n] {
 			println!("MATCH at {}", plen-1-n);
