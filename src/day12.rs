@@ -29,8 +29,8 @@ pub fn day12(input: &String) -> (String,String) {
             perimeter += ap.perimeter;
             let price = area * perimeter;
             let discount_price = area * corners;
-            println!("crop {} at xy {} has area {} and perimeter {} costing ${}", crop as char, xy.to_string(), area, perimeter, price);
-            println!("    it has {} corners and discounted price ${}", corners, discount_price);
+            //println!("crop {} at xy {} has area {} and perimeter {} costing ${}", crop as char, xy.to_string(), area, perimeter, price);
+            //println!("    it has {} corners and discounted price ${}", corners, discount_price);
             total_price += price;
             total_discount_price += discount_price;
             visited.append(&mut this_region);

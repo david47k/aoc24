@@ -13,7 +13,7 @@ pub fn day07(input: &String) -> (String,String) {
     let valid_data: Vec<Vec<usize>> = data.clone().into_iter().filter(|r| {
         // n.b. the target result is stored in r[0]
 
-        print!("line: {r:?} ");
+        //print!("line: {r:?} ");
 
         let num_ops = r.len() - 2;
 
@@ -39,7 +39,7 @@ pub fn day07(input: &String) -> (String,String) {
                 valid_line = true;
             }
         }
-        println!("{valid_line}");
+        //println!("{valid_line}");
         valid_line
     }).collect();
 
@@ -49,7 +49,7 @@ pub fn day07(input: &String) -> (String,String) {
     // part two
     let valid_data: Vec<Vec<usize>> = data.into_iter().filter(|r| {
         // target is in r[0]
-        print!("line: {r:?} ");
+        //print!("line: {r:?} ");
 
         const OP_ADD: u8 = 0;
         const _OP_MUL: u8 = 1;
@@ -103,7 +103,7 @@ pub fn day07(input: &String) -> (String,String) {
             }
             done = !inc_ops_map(&mut ops_map);  // increment with carry on ops_map, and set the done flag if we've tried every combo
         }
-        println!("{valid_line}");
+        //println!("{valid_line}");
         valid_line
     }).collect();
 

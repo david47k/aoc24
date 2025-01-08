@@ -18,10 +18,10 @@ pub fn day25(input: &String) -> (String, String) {
 		}
 		if &lines[idx][0..1] == "#" {
 			locks.push(deets);
-			println!("found lock: {:?}", deets);
+			//println!("found lock: {:?}", deets);
 		} else {
 			keys.push(deets);
-			println!("found key:  {:?}", deets);
+			//println!("found key:  {:?}", deets);
 		}
 		idx += 8;
 	}

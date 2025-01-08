@@ -7,7 +7,7 @@ pub fn day16(input: &String) -> (String, String) {
 	let mut best_score: usize = 0;
 	println!("level w: {}, h: {}", level.w, level.h);
 	println!("{}", level.to_string());
-	let soln = find_best_path(&level, 1_000);
+	let soln = find_best_path_16(&level, 1_000);
 	let mut best_tiles: usize = 0;
 	if let Some(sol) = soln {
 		println!("Solution found!");

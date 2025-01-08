@@ -53,9 +53,9 @@ pub fn day15(input: &String) -> (String, String) {
 		if able {
 			// move robot
 			robot_xy = robot_xy.add(&m.to_vector());
-			print!("{} ok. ", m.to_string());
+			//print!("{} ok. ", m.to_string());
 		} else {
-			print!("{} failed. ", m.to_string());
+			//print!("{} failed. ", m.to_string());
 		}
 	}
 
@@ -98,7 +98,7 @@ pub fn day15(input: &String) -> (String, String) {
 		let nxy = robot_xy.add_dir(&m);
 		let nobj = grid.get(&nxy);
 		if nobj.is_none() || nobj.unwrap() == b'#' {
-			print!("{} failed. ", m.to_string());
+			//print!("{} failed. ", m.to_string());
 			continue;
 		}
 		let nobj = nobj.unwrap();
@@ -119,16 +119,16 @@ pub fn day15(input: &String) -> (String, String) {
 				});
 				// move robot
 				robot_xy = nxy;
-				print!("{} ok. ", m.to_string());
+				//print!("{} ok. ", m.to_string());
 				continue;
 			}
-			print!("{} failed. ", m.to_string());
+			//print!("{} failed. ", m.to_string());
 			continue;
 		}
 		// if we reach here, should be a .
 		// move robot
 		robot_xy = robot_xy.add(&m.to_vector());
-		print!("{} ok. ", m.to_string());
+		//print!("{} ok. ", m.to_string());
 	}
 
 	println!("\nfinal position:\n{}", grid.to_string_with_pt(&robot_xy));
@@ -233,7 +233,7 @@ fn box_tree_is_pushable(grid: &Grid, xyu: &Vector, m: Move) -> Option<Vec<Vector
 			return None;
 		}
 		let qobj = [ qobj[0].unwrap() as char, qobj[1].unwrap() as char ];
-		println!("testing {:?} qobjs {:?}", qxy, qobj);
+		// println!("testing {:?} qobjs {:?}", qxy, qobj);
 		if qobj.iter().any(|&c| c == '#') {
 			return None;
 		}

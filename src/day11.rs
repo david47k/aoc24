@@ -67,7 +67,7 @@ pub fn day11(input: &String) -> (String,String) {
         map = dest;
         blinks = i + 1;
 
-        println!("depth {blinks}, count {0}", calculate_count(&map));
+        //println!("depth {blinks}, count {0}", calculate_count(&map));
         // print!("nodes: ");
         // map.iter().for_each(|(k,n)| {
         //     print!("{0}:{1} ", k.0, n.to_string());

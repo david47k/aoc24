@@ -120,7 +120,7 @@ pub fn day06(input: &String) -> (String,String) {
         }).collect::<Vec<Option<(usize,usize)>>>()
     }).flatten().filter(|d| d.is_some()).map(|d| d.unwrap()).collect();
 
-    println!("sites: {sites:?}");
+    //println!("sites: {sites:?}");
     println!("sites len: {0:?}", sites.len());
 
     // remove guard start position
@@ -130,7 +130,7 @@ pub fn day06(input: &String) -> (String,String) {
 
     // test each (x,y) on a input copy, with the obstruction placed, and check for a guard walk loop
     for (x,y) in sites.iter() {
-        print!("trying obstruction at {x:3},{y:3}: ");
+        // print!("trying obstruction at {x:3},{y:3}: ");
         // add an obstruction
         let mut d = data.clone();
         d[*y][*x] = '#';
@@ -175,10 +175,10 @@ pub fn day06(input: &String) -> (String,String) {
             }
         }
         if is_loop {
-            println!("looped");
+            //println!("looped");
             looped_count += 1;
         } else {
-            println!("off map");
+            //println!("off map");
         }
 
     }

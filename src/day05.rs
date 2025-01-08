@@ -37,10 +37,10 @@ pub fn day05(input: &String) -> (String,String) {
             f |= invalid_pair(u[j], u[j+1], &rules);
         }
         if f {
-            println!("update invalid: {0:?}", updates[i]);
+            //println!("update invalid: {0:?}", updates[i]);
             failed_updates.push(updates[i].clone());
         } else {
-            println!("update valid  : {0:?}", updates[i]);
+            //println!("update valid  : {0:?}", updates[i]);
             sum += u[u.len()/2];            // find middle pair and add to sum
         }
     }
@@ -50,7 +50,7 @@ pub fn day05(input: &String) -> (String,String) {
     // part two... fix and sum only the incorrect updates
     let mut sum2 = 0;
     for u in failed_updates.iter_mut() {
-        println!("original: {u:?}");
+        //println!("original: {u:?}");
 
         // sort with custom rules
         // note it doesn't actually matter which way we sort -- as we are using just the middle value!
@@ -61,7 +61,7 @@ pub fn day05(input: &String) -> (String,String) {
             }
         });
 
-        println!("sorted  : {u:?}");
+        //println!("sorted  : {u:?}");
 
         // find middle pair and add to sum
         sum2 += u[u.len()/2];

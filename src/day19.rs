@@ -1,10 +1,10 @@
 
-use std::io::stdout;
-use crossterm::execute;
 use itertools::Itertools;
 use std::collections::{*};
-use crossterm::{style};
-use crossterm::style::Stylize;
+#[allow(unused_imports)]
+use std::io::stdout;
+#[allow(unused_imports)]
+use crossterm::{execute,style,style::Stylize};
 
 #[derive(Copy,Clone,Eq,PartialEq,Hash,Ord,PartialOrd)]
 struct Array8 {
@@ -163,7 +163,7 @@ pub fn day19(input: &String) -> (String, String) {
 	println!("min tp len: {}", min_len);
 	println!("patterns: {}", patterns.len());
 
-	println!("day 19 part 1");
+	println!("part 1");
 
 	let mut p1score = 0;
 	for &p in patterns.iter() {
@@ -176,18 +176,18 @@ pub fn day19(input: &String) -> (String, String) {
 
 	// part 2
 
-	println!("day 19 part 2");
+	println!("part 2");
 
 	let mut p2score = 0;
 	let mut solver = Solver::new(&tps);
 		
-	for (i,&p) in patterns.iter().enumerate() {
-		execute!(stdout(),	style::PrintStyledContent(format!("pattern {}:",i).cyan()),	).unwrap();
+	for (_i,&p) in patterns.iter().enumerate() {
+		//execute!(stdout(),	style::PrintStyledContent(format!("pattern {}:",i).cyan()),	).unwrap();
 
 		let count: u64 = solver.get_num_combos(p,0);
 		solver.combo_map.clear();	// must reset this after every pattern we check
 
-		execute!(stdout(), style::PrintStyledContent(format!(" {}\n", count).green())).unwrap();
+		//execute!(stdout(), style::PrintStyledContent(format!(" {}\n", count).green())).unwrap();
 		p2score += count;
 	}
 

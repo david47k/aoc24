@@ -49,10 +49,13 @@ fn main() {
     let args: Vec<String> = std::env::args().collect();
 
     let test = args.len() == 2 && args[1] == "test";
+    let test2 = args.len() == 2 && args[1] == "test2";
     let mut tests_passed: usize = 0;
 
     if test {
         runsheet.append(&mut gen_test_data());
+    } else if test2 {
+        runsheet.append(&mut gen_test_data_2());
     } else {
         if args.len() < 3 {
             println!("Specify which day and input file as arguments (e.g. aoc24 1 ex01.txt)");
@@ -95,15 +98,27 @@ fn main() {
             25 => day25::day25(&input),
             _  => { println!("Unknown day!"); ("no result".to_string(), "no result".to_string()) }
         };
-        if test {
+        if test || test2 {
             if result == *eresult {
                 tests_passed += 1;
+                println!("\n=== DAY {:2} TEST PASSED ===", day);
+                println!("part 1: {:?}", result.0);
+                println!("part 2: {:?}", result.1);
+                println!("==========================");
             } else {
-                println!("=== TEST FAILED ===");
+                println!("\n=== DAY {:2} TEST FAILED ===", day);
+                println!("expected: {:?}", *eresult);
+                println!("got:      {:?}", result);
+                println!("==========================");
             }
+        } else {
+            println!("\n=== DAY {:2} RESULTS ===", day);
+            println!("part 1: {:?}", result.0);
+            println!("part 2: {:?}", result.1);
+            println!("==========================");
         }
     }
-    if test {
+    if test || test2 {
         println!("\nTests conducted : {:2}", runsheet.len());
         println!("Tests failed    : {:2}\n", runsheet.len() - tests_passed);
     }
@@ -139,6 +154,37 @@ fn gen_test_data() -> Vec<(usize,String,(String, String))> {
         ( 23,   "ex23.txt",  ("7", "co,de,ka,ta") ),
         ( 24,   "ex24.txt",  ("2024", "unknown") ), // not a great test
         ( 25,   "ex25.txt",  ("3", "no result") ),
+    ];
+    d.into_iter().map(|(day,fname,(result1,result2))| (day,fname.to_string(),(result1.to_string(), result2.to_string()))).collect_vec()
+}
+
+fn gen_test_data_2() -> Vec<(usize,String,(String, String))> {
+    let d = vec![
+        ( 1,    "input01.txt",   ("1223326", "21070419") ),
+        ( 2,    "input02.txt",   ("559", "601") ),
+        ( 3,    "input03.txt",   ("167650499", "95846796") ),
+        ( 4,    "input04.txt",   ("2613", "1905") ),
+        ( 5,    "input05.txt",   ("5208", "6732") ),
+        ( 6,    "input06.txt",   ("4789", "1304") ),
+        ( 7,    "input07.txt",   ("2664460013123", "426214131924213") ),
+        ( 8,    "input08.txt",   ("336", "1131") ),
+        ( 9,    "input09.txt",   ("6430446922192", "6460170593016") ),
+        ( 10,   "input10.txt",   ("694", "1497") ),
+        ( 11,   "input11.txt",   ("233875", "277444936413293") ),
+        ( 12,   "input12.txt",   ("1450816", "865662") ),
+        ( 13,   "input13.txt",   ("37686", "77204516023437") ),
+        ( 14,   "input14.txt",   ("219512160", "6398") ),
+        ( 15,   "input15.txt",   ("1552463", "1554058") ),
+        ( 16,   "input16.txt",   ("123540", "665") ),
+        ( 17,   "input17.txt",   ("1,2,3,1,3,2,5,3,1", "105706277661082") ),
+        ( 18,   "input18.txt",   ("436", "61,50") ),
+        ( 19,   "input19.txt",   ("263", "723524534506343") ),
+        ( 20,   "input20.txt",   ("1372", "979014") ),
+        ( 21,   "input21.txt",   ("155252", "195664513288128") ),
+        ( 22,   "input22.txt",   ("13461553007", "1499") ),
+        ( 23,   "input23.txt",   ("1098", "ar,ep,ih,ju,jx,le,ol,pk,pm,pp,xf,yu,zg") ),
+        ( 24,   "input24.txt",   ("55544677167336", "gsd,kth,qnf,tbt,vpm,z12,z26,z32") ), // not a great test
+        ( 25,   "input25.txt",   ("3255", "no result") ),
     ];
     d.into_iter().map(|(day,fname,(result1,result2))| (day,fname.to_string(),(result1.to_string(), result2.to_string()))).collect_vec()
 }

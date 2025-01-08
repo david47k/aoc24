@@ -11,7 +11,9 @@ struct Machine {
 }
 
 struct Combo {
+    #[allow(dead_code)]
     a_count: usize,
+    #[allow(dead_code)]
     b_count: usize,
     cost: usize,
 }
@@ -36,10 +38,10 @@ pub fn day13(input: &String) -> (String,String) {
         machines.push(Machine { a: (ax, ay), b: (bx, by), t: (t_x, t_y) });
     }
 
-    for (i, m) in machines.iter().enumerate() {
+    for (_i, m) in machines.iter().enumerate() {
         // find minimum number of button presses that will get close to target
-        println!("machine {}: ", i+1);
-        println!("  {:?} {:?} {:?}", m.a, m.b, m.t);
+        // println!("machine {}: ", i+1);
+        // println!("  {:?} {:?} {:?}", m.a, m.b, m.t);
         let mut combos: Vec<Combo> = vec![];
         for na in 1..=100 {
             for nb in 1..=100 {
@@ -48,10 +50,10 @@ pub fn day13(input: &String) -> (String,String) {
                 }
             }
         }
-        println!("  {} combos found", combos.len());
+        //println!("  {} combos found", combos.len());
         if combos.len() > 0 {
             combos.sort_by(|a, b| a.cost.cmp(&b.cost));
-            println!("  cheapest is a: {}, b: {}, cost: {}", combos[0].a_count, combos[0].b_count, combos[0].cost);
+            //println!("  cheapest is a: {}, b: {}, cost: {}", combos[0].a_count, combos[0].b_count, combos[0].cost);
             total_cost += combos[0].cost;
         }
     }
@@ -64,7 +66,7 @@ pub fn day13(input: &String) -> (String,String) {
         m.t = (m.t.0 + 10000000000000, m.t.1 + 10000000000000);
     }
 
-    for (i,m) in machines.iter().enumerate() {
+    for (_i,m) in machines.iter().enumerate() {
         // can't brute force for part two :)
         // consider the direction each button makes as a line.
         // there are only two possibilities for the lines: line a from ("no result".to_string(), "no result".to_string()), and line b via (tx,ty) (and vice-versa).
@@ -76,8 +78,8 @@ pub fn day13(input: &String) -> (String,String) {
         //
         // #neat_things_seen: simpler algebra, no need to consider the line formula!
 
-        println!("machine {}: ", i+1);
-        println!("  {:?} {:?} {:?}", m.a, m.b, m.t);
+        //println!("machine {}: ", i+1);
+        //println!("  {:?} {:?} {:?}", m.a, m.b, m.t);
 
         let a = (m.a.0 as f64, m.a.1 as f64);
         let b = (m.b.0 as f64, m.b.1 as f64);
@@ -96,10 +98,10 @@ pub fn day13(input: &String) -> (String,String) {
         // test the answer to see if it is legit in integer terms
         if (m.a.0 * ac + m.b.0 * bc) == m.t.0 && (m.a.1 * ac + m.b.1 * bc) == m.t.1 {
             let cost = 3 * ac + bc;
-            println!("  solution is a: {}, b: {}, cost: {}", ac, bc, cost);
+            //println!("  solution is a: {}, b: {}, cost: {}", ac, bc, cost);
             total_cost_two += cost;
         } else {
-            println!("  no solution found");
+            //println!("  no solution found");
         }
     }
 

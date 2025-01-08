@@ -32,7 +32,7 @@ pub fn day14(input: &String) -> (String, String) {
 			vy = h + vy;
 		}
 		robots.push(Robot{p: (px,py), v: (vx,vy)});
-		println!("robot: {:?} {:?}", robots[i].p, robots[i].v);
+		//println!("robot: {:?} {:?}", robots[i].p, robots[i].v);
 	}
 
 	let mut quads: [usize; 4] = [0; 4];

@@ -97,9 +97,9 @@ pub fn day20(input: &String) -> (String, String) {
     for (key, chunk) in &cheat_savings.into_iter().chunk_by(|u| *u) {
         cheats_grouped.push((key, chunk.collect()));
     }
-    for (k, v) in cheats_grouped {
-        println!("There are {} cheats that save {} picoseconds",v.len(),k);
-    }
+    // for (k, v) in cheats_grouped {
+    //     println!("There are {} cheats that save {} picoseconds",v.len(),k);
+    // }
     println!("part 2 count: {}", p2count);
 
     (p1count.to_string(), p2count.to_string())

@@ -39,7 +39,7 @@ pub fn day03(input: &String) -> (String,String) {
                 let [a, b]: [ usize; 2 ] = [ a.parse().expect("number"), b.parse().expect("number") ];
 
                 let r = a * b;
-                println!("{enabled:5} {a:3} * {b:3} = {r:6}");
+                // println!("{enabled:5} {a:3} * {b:3} = {r:6}");
                 if enabled {
                     sum2 += r;
                 }

@@ -26,7 +26,7 @@ struct NodeData {
 	pub pts: Vec<Vector>,
 }
 
-pub fn find_best_path(level: &Level, max_depth: u64) -> Option<Solution> {
+pub fn find_best_path_16(level: &Level, max_depth: u64) -> Option<Solution> {
 	// find path from start_pos to end_pos
 	// using score as path weight
 	// we will store how we get to each square:
@@ -48,21 +48,21 @@ pub fn find_best_path(level: &Level, max_depth: u64) -> Option<Solution> {
 	nodes.insert(first_node_id, first_node_data.clone() );
 	edge_nodes.push((first_node_id, first_node_data ));
 	while edge_nodes.len() > 0 && depth < max_depth {
-		println!("depth: {}", depth);
+		//println!("depth: {}", depth);
 		// for each edgenode
 		for (id,data) in edge_nodes.iter() {
 			//println!("testing edgenode {:?} with score {}", id, data.s);
 
 			// is it a winner? save it if so
 			if id.p == level.end_pos {
-				println!("\nsolution found with score {} at depth {}", data.s, depth);
-				println!("path: {}", data.path.to_string());
+				//println!("\nsolution found with score {} at depth {}", data.s, depth);
+				//println!("path: {}", data.path.to_string());
 				if solutions.len() == 0 || data.s < solutions[0].1.s {
 					solutions = [(*id, data.clone())].to_vec();
-					println!("--> best solution so far!");
+					println!("best solution so far found with score {} at depth {}", data.s, depth);
 				} else if data.s == solutions[0].1.s {
 					solutions.push((*id, data.clone()));
-					println!("--> additional best solution!");
+					//println!("--> additional best solution!");
 				}
 			}
 

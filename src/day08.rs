@@ -17,19 +17,19 @@ pub fn day08(input: &String) -> (String,String) {
     for node in b"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"[..].iter()  {
         let positions = grid.find(*node);
         if positions.len() > 0 {
-            print!("'{0}' at ", *node as char);
-            for p in &positions {
-                print!("{0} ", p.to_string());
-            }
-            println!();
+            // print!("'{0}' at ", *node as char);
+            // for p in &positions {
+            //     print!("{0} ", p.to_string());
+            // }
+            // println!();
             // find antinodes
             // i.e. for each pair of the set, find the two antinodes
             for pair in positions.iter().combinations(2) {
-                println!("combo {0} {1}", pair[0].to_string(), pair[1].to_string());
+                //println!("combo {0} {1}", pair[0].to_string(), pair[1].to_string());
                 let d = pair[1].sub(pair[0]);
                 let an0 = pair[0].sub(&d);
                 let an1 = pair[1].add(&d);
-                println!("antinodes at {0} {1}", an0.to_string(), an1.to_string());
+                //println!("antinodes at {0} {1}", an0.to_string(), an1.to_string());
                 antinodes.push(an0);
                 antinodes.push(an1);
             }
@@ -53,15 +53,15 @@ pub fn day08(input: &String) -> (String,String) {
     for node in b"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"[..].iter()  {
         let positions = grid.find(*node);
         if positions.len() > 0 {
-            print!("'{0}' at ", *node as char);
-            for p in &positions {
-                print!("{0} ", p.to_string());
-            }
-            println!();
+            // print!("'{0}' at ", *node as char);
+            // for p in &positions {
+            //     print!("{0} ", p.to_string());
+            // }
+            // println!();
             // find antinodes
             // i.e. for each pair of the set, find the antinodes in both directions until off-map
             for pair in positions.into_iter().combinations(2) {
-                println!("combo {0} {1}", pair[0].to_string(), pair[1].to_string());
+                //println!("combo {0} {1}", pair[0].to_string(), pair[1].to_string());
                 let d = pair[1].sub(&pair[0]);
                 antinodes.push(pair[0]);
                 antinodes.push(pair[1]);

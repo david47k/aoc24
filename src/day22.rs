@@ -72,7 +72,7 @@ pub fn day22(input: &String) -> (String, String) {
 		all_sets.push(set);
 		buyer_maps.push(buyer_map);
 	}
-	println!("done!");
+	println!("iterating buyers...");
 
 	let mut best_pattern = all_sets[0][0];
 	let mut best_price: i32 = 0;
@@ -81,7 +81,7 @@ pub fn day22(input: &String) -> (String, String) {
 
 
 	for buyer_idx in 0..all_prices.len() {
-		println!("buyer: {buyer_idx}");
+		//println!("buyer: {buyer_idx}");
 		for i in 0..2000-4_usize {
 			let pattern = all_sets[buyer_idx][i];
 			if tested_patterns.contains(&pattern) {
@@ -99,7 +99,7 @@ pub fn day22(input: &String) -> (String, String) {
 				best_price = price;
 			}
 		}
-		println!("best price so far: {:5}   {:?}", best_price, best_pattern);
+		println!("after {:2} buyers, best price is: {:5}   {:?}", buyer_idx, best_price, best_pattern);
 		if buyer_idx == 10 {
 			break;
 		}
