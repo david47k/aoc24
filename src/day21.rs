@@ -1,6 +1,5 @@
 use itertools::Itertools;
 use crate::vector::{*};
-use std::io::Write;
 use std::collections::BTreeMap;
 
 // +---+---+---+
@@ -54,7 +53,6 @@ impl<T: Copy> MiniVec<T> {
 	}
 }
 
-
 #[derive(Clone)]
 struct RobotChain {
 	pub robots: Vec<Robot>,
@@ -88,7 +86,6 @@ impl RobotChain {
 		}
 										// return the total
 		count
-
 	}
 	fn do_path_wide_cached(&mut self, opath: &MiniVec<char>, depth: usize) -> usize {
 		let rdata = self.robots[depth];
@@ -173,53 +170,6 @@ impl Robot {
 		} else {
 			Self::c_to_v_directional(c)
 		}
-	}
-	pub fn button_press(&mut self, c: char) -> Vec<char> {
-		// best path is < , then ^/v, then >
-		// we condense this into simply method Vertical first or Across first
-		let mut path: Vec<char> = vec![];
-		let dest = self.c_to_v(c);
-		let diff = dest.sub(&self.posn);
-		let nogo = self.no_go();
-		let mut method: Method;
-		if diff.0 < 0 {
-			method = Method::A;
-		} else {
-			method = Method::V;
-		}
-		// avoid passing the no-go zone
-		if self.posn.0 == nogo.0 && dest.1 == nogo.1 {
-			method = Method::A;
-		}
-		if self.posn.1 == nogo.1 && dest.0 == nogo.0 {
-			method = Method::V;
-		}
-		if method == Method::V { 	// go vertical first
-			if diff.1 < 0 {
-				path.extend(vec!['^'; diff.1.abs() as usize]);
-			} else {
-				path.extend(vec!['v'; diff.1.abs() as usize]);
-			}
-			if diff.0 < 0 {
-				path.extend(vec!['<'; diff.0.abs() as usize] );
-			} else {
-				path.extend(vec!['>'; diff.0.abs() as usize] );
-			}
-		} else { 		// go horizontal first
-			if diff.0 < 0 {
-				path.extend(vec!['<'; diff.0.abs() as usize] );
-			} else {
-				path.extend(vec!['>'; diff.0.abs() as usize] );
-			}
-			if diff.1 < 0 {
-				path.extend(vec!['^'; diff.1.abs() as usize])
-			} else {
-				path.extend(vec!['v'; diff.1.abs() as usize])
-			}
-		}
-		self.posn = dest;
-		path.push('A');
-		path
 	}
 	pub fn button_press_2(&mut self, c: char) -> MiniVec<char> {
 		// best path is < , then ^/v, then >
@@ -313,13 +263,6 @@ impl Robot {
 		self.posn = dest;
 		path.push('A');
 	}
-	pub fn _do_path(&mut self, path: &Vec<char>) -> Vec<char> {
-		let mut new_path: Vec<char> = vec![];
-		for i in 0..path.len() {
-			new_path.extend( self.button_press(path[i]) );
-		}
-		new_path
-	}
 	pub fn new(control_type: ControlType) -> Self {
 		let v = if control_type == ControlType::Numpad {
 			Vector(2,3)
@@ -328,10 +271,6 @@ impl Robot {
 		};
 		Self { posn: v, control_type }
 	}
-}
-
-fn _path_to_string(path: &Vec<char>) -> String {
-	path.into_iter().collect::<String>()
 }
 
 pub fn day21(input: &String) -> (String, String) {
@@ -347,22 +286,14 @@ pub fn day21(input: &String) -> (String, String) {
 	};
 	let mut p1soln: usize = 0;
 	for (i,&ref code) in codes.iter().enumerate() {
-		// let p1 = robot1.do_path(code);
-		// println!("path1: {}", path_to_string(&p1));
-		// let p2 = robot2.do_path(&p1);
-		// println!("path2: {}", path_to_string(&p2));
-		// let path = robot3.do_path(&p2);
-		// println!("path for {} of length {}: {}", codes_s[i], path.len(), path_to_string(&path));
+		println!("processing '{}'...",  codes_s[i]);
 		let mut count = 0;
 		for c in code.iter() {
-			print!("processing '{}'", c);
 			count += robot_chain.do_path(*c, 0);
-			println!();
 		}
-		println!("path for {} of length {}", codes_s[i], count);
 		let n1 = codes_s[i][0..3].parse::<usize>().unwrap();
 		let complexity: usize = count * (codes_s[i][0..3]).parse::<usize>().unwrap();
-		println!("complexity {} * {}: {}", n1, count, complexity);
+		println!("complexity = {} * length {} = {}", n1, count, complexity);
 		p1soln += complexity;
 	}
 
@@ -384,15 +315,13 @@ pub fn day21(input: &String) -> (String, String) {
 	let mut p2soln: usize = 0;
 	for (i,&ref code) in codes.iter().enumerate() {
 		let mut count = 0;
+		println!("processing '{}'...", codes_s[i]);
 		for c in code.iter() {
-			print!("processing '{}'", c);
 			count += robot_chain.do_path(*c, 0);
-			println!();
 		}
-		println!("path for {} of length {}", codes_s[i], count);
 		let n1 = codes_s[i][0..3].parse::<usize>().unwrap();
 		let complexity: usize = count * (codes_s[i][0..3]).parse::<usize>().unwrap();
-		println!("complexity {} * {}: {}", n1, count, complexity);
+		println!("complexity = {} * length {} = {}", n1, count, complexity);
 		p2soln += complexity;
 	}
 
