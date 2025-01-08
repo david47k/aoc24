@@ -93,8 +93,8 @@ pub fn day15(input: &String) -> (String, String) {
 	grid.put(&robot_xy, b'.');
 
 	// make move
-	for (i,&m) in moves.iter().enumerate() {
-		println!("\nafter {i} moves:\n{}", grid.to_string_with_pt(&robot_xy));
+	for (_i,&m) in moves.iter().enumerate() {
+		//println!("\nafter {i} moves:\n{}", grid.to_string_with_pt(&robot_xy));
 		let nxy = robot_xy.add_dir(&m);
 		let nobj = grid.get(&nxy);
 		if nobj.is_none() || nobj.unwrap() == b'#' {
@@ -183,7 +183,7 @@ fn box_tree_is_pushable(grid: &Grid, xyu: &Vector, m: Move) -> Option<Vec<Vector
 	if grid.get_unchecked(&xy) == b']' {
 		xy = Vector(xy.0 - 1, xy.1);
 	}
-	println!("btip called with xyu {:?}, xy {:?}, mv {:?}", *xyu, xy, m);
+	//println!("btip called with xyu {:?}, xy {:?}, mv {:?}", *xyu, xy, m);
 	box_list.push(xy);
 	if m == Move::Left || m == Move::Right {
 		let mut qxy = xy.add_dir(&m);
